@@ -1,0 +1,8 @@
+{
+  "id": "irs-pod",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

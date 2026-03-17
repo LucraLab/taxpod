@@ -1,0 +1,66 @@
+{
+  "_description": "IRS Resolution Pod — Agent Registry (disabled by default)",
+  "_version": "0.1.0",
+  "_updated": "2026-02-16",
+  "agents": {
+    "tax-vault-operator": {
+      "display_name": "Tax Vault Operator",
+      "pod": "irs-resolution",
+      "role": "data_steward",
+      "enabled_env": "IRS_TAX_VAULT_OPERATOR_ENABLED",
+      "enabled_default": false,
+      "description": "Manages Tax Vault Index and ingestion tracking. Read-only metadata access.",
+      "capabilities": {
+        "allowed": [
+          "dispatch_tax_status"
+        ],
+        "forbidden": [
+          "dispatch_tax_sync",
+          "dispatch_tax_analyze",
+          "sheets_write",
+          "drive_write",
+          "email_send",
+          "calendar_create",
+          "browser_navigate",
+          "irs_contact",
+          "payment_process"
+        ]
+      },
+      "instruction_path": "workspace/knowledge/agents/tax-vault-operator.md"
+    },
+    "irs-specialist": {
+      "display_name": "IRS Specialist",
+      "pod": "irs-resolution",
+      "role": "strategy_operationalization",
+      "enabled_env": "IRS_IRS_SPECIALIST_ENABLED",
+      "enabled_default": false,
+      "description": "Operationalizes strategy into timelines, forms, and tasks. Advisory only.",
+      "capabilities": {
+        "allowed": [
+          "dispatch_tax_status"
+        ],
+        "forbidden": [
+          "dispatch_tax_sync",
+          "dispatch_tax_analyze",
+          "sheets_write",
+          "drive_write",
+          "email_send",
+          "calendar_create",
+          "browser_navigate",
+          "irs_contact",
+          "payment_process",
+          "efile_submit"
+        ]
+      },
+      "dependencies": ["tax-vault-operator"],
+      "instruction_path": "workspace/knowledge/agents/irs-specialist.md"
+    }
+  },
+  "pod_config": {
+    "kill_switch_required": true,
+    "approval_routing": true,
+    "audit_events": true,
+    "max_daily_reads": 1000,
+    "write_operations": "NONE"
+  }
+}

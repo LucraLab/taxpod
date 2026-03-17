@@ -1,0 +1,7 @@
+node_modules/
+*.env
+.env*
+tax_inputs/
+tax_work/
+tax_outputs/
+tax-vault-staging/

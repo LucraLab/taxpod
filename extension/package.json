@@ -1,0 +1,9 @@
+{
+  "name": "@openclaw/irs-pod",
+  "version": "0.1.0",
+  "description": "IRS Resolution Pod — read-only scaffolding for tax-vault-operator and irs-specialist agents",
+  "type": "module",
+  "openclaw": {
+    "extensions": ["./index.ts"]
+  }
+}
