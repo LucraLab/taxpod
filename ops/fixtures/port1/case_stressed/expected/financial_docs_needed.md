@@ -44,5 +44,11 @@
 - [ ] All IRS notices received (CP2000, CP504, etc.)
 - [ ] Most recent IRS account transcripts (if available)
 
+## First Time Penalty Abatement (FTA)
+
+- [ ] IRS account transcripts for 3 years prior to earliest penalty year (to confirm clean filing history)
+- [ ] IRS tax return transcripts showing timely filing for those 3 years
+- [ ] Provide prior_compliance.clean_filing_years in intake to confirm FTA eligibility
+
 ---
 *Generated: 20260220T000000Z | Model: PaymentPlanModelV1 | Case: case_stressed*

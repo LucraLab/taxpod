@@ -48,7 +48,7 @@
         "/case_id",
         "/as_of_utc"
       ],
-      "notes": "Allow patching derived totals, intake summary totals, liability year data, capacity figures. Refuse identity fields."
+      "notes": "Allow patching derived totals, intake summary totals, liability year data, capacity figures. Refuse identity fields. Computed fields (irs_allowable_expenses, csed_analysis, relief_opportunities) are not directly patchable — corrections require updating intake and re-running PORT1."
     },
     "STRATEGY": {
       "runtime_path": "strategy/strategy_recommendation.json",

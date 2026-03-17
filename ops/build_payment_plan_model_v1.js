@@ -365,6 +365,16 @@ function main() {
   } else {
     const asOfDate = parseAsOfUtc(asOfUtc);
 
+    // Validate assessment_date entries before processing
+    for (const ad of assessmentDates) {
+      if (!ad.year || typeof ad.year !== 'number') {
+        die(`assessment_dates entry missing required 'year' (number): ${JSON.stringify(ad)}`, 1);
+      }
+      if (!ad.assessment_date || typeof ad.assessment_date !== 'string' || !/^\d{8}$/.test(ad.assessment_date)) {
+        die(`assessment_dates entry for year ${ad.year} has invalid 'assessment_date' — expected YYYYMMDD format, got: ${JSON.stringify(ad.assessment_date)}`, 1);
+      }
+    }
+
     const taxYearsCsed = assessmentDates.map(ad => {
       const assessDate = parseYmd(ad.assessment_date);
       const expiryDate = new Date(Date.UTC(
@@ -412,13 +422,6 @@ function main() {
       collection_window_note: `IRS has until ${earliestExpiryReadable} to collect the earliest-assessed year.`
     };
 
-    // CSED risk flags added below after base flags
-    if (anyNearExpiry) {
-      csedAnalysis._flag_near_expiry = true;
-    }
-    if (anyExpired) {
-      csedAnalysis._flag_expired = true;
-    }
   }
 
   // ── Risk flags ──
@@ -436,10 +439,6 @@ function main() {
     if (csedAnalysis.any_near_expiry) riskFlags.push('CSED_NEAR_EXPIRY');
     if (csedAnalysis.any_expired) riskFlags.push('CSED_EXPIRED');
   }
-
-  // Clean up internal markers
-  if (csedAnalysis._flag_near_expiry !== undefined) delete csedAnalysis._flag_near_expiry;
-  if (csedAnalysis._flag_expired !== undefined) delete csedAnalysis._flag_expired;
 
   // ── Assumptions ──
   const assumptions = [

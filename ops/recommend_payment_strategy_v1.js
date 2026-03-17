@@ -120,9 +120,10 @@ function main() {
   if (!mustEscalate && totalAssets !== null) {
     const quickSaleAssets = Math.round(totalAssets * 0.80 * 100) / 100;
     const collectionMonths = 12; // lump-sum OIC default
-    const incomeComponent = Math.round(capacityLikely * collectionMonths * 100) / 100;
+    // Use Math.max(0, capacity) — negative income means $0 income component (IRS standard)
+    const incomeComponent = Math.round(Math.max(capacityLikely, 0) * collectionMonths * 100) / 100;
     const rcp = Math.round((incomeComponent + quickSaleAssets) * 100) / 100;
-    oicIndicated = capacityLikely > 0 && totalLiability > (rcp * 1.10);
+    oicIndicated = totalLiability > (rcp * 1.10);
 
     rcpAnalysis = {
       monthly_capacity_likely: capacityLikely,

@@ -161,7 +161,21 @@ function main() {
   irsItems.sort();
   sections.push({ title: 'Prior IRS Correspondence', items: irsItems });
 
-  // 8. Dependents (conditional)
+  // 8. Relief Opportunities (FTA — conditional)
+  const ftaEligible = !!(model.relief_opportunities && model.relief_opportunities.fta_eligible);
+  const ftaUnknown = model.relief_opportunities && model.relief_opportunities.fta_clean_years === null;
+  if (ftaEligible || ftaUnknown) {
+    const ftaItems = [];
+    ftaItems.push('IRS account transcripts for 3 years prior to earliest penalty year (to confirm clean filing history)');
+    ftaItems.push('IRS tax return transcripts showing timely filing for those 3 years');
+    if (ftaUnknown) {
+      ftaItems.push('Provide prior_compliance.clean_filing_years in intake to confirm FTA eligibility');
+    }
+    ftaItems.sort();
+    sections.push({ title: 'First Time Penalty Abatement (FTA)', items: ftaItems });
+  }
+
+  // 9. Dependents (conditional)
   if (intake.dependents > 0) {
     const depItems = [];
     depItems.push('Proof of dependents (birth certificates, SSN cards)');
