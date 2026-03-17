@@ -9,9 +9,9 @@ set -euo pipefail
 ###############################################################################
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-APPLY_SCRIPT="$REPO_ROOT/ops/taxpod/apply/apply_changeset_v1.js"
-FIXTURE_ROOT="$REPO_ROOT/ops/taxpod/fixtures/port4_apply"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+APPLY_SCRIPT="$REPO_ROOT/ops/apply/apply_changeset_v1.js"
+FIXTURE_ROOT="$REPO_ROOT/ops/fixtures/port4_apply"
 
 PASS=0
 FAIL=0

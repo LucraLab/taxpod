@@ -15,9 +15,9 @@ set -euo pipefail
 ###############################################################################
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-TRANSFORMER="$REPO_ROOT/ops/taxpod/feedback/feedback_to_changeset_v1.js"
-FIXTURE_ROOT="$REPO_ROOT/ops/taxpod/fixtures/port4_feedback"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+TRANSFORMER="$REPO_ROOT/ops/feedback/feedback_to_changeset_v1.js"
+FIXTURE_ROOT="$REPO_ROOT/ops/fixtures/port4_feedback"
 
 PASS=0
 FAIL=0
