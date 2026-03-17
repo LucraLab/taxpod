@@ -284,6 +284,20 @@ function main() {
     'Liability totals from TaxVault as of bundle export date'
   ];
 
+  // ── Relief opportunities (FTA) ──
+  const priorCompliance = intake.prior_compliance || null;
+  const cleanFilingYears = (priorCompliance && typeof priorCompliance.clean_filing_years === 'number')
+    ? priorCompliance.clean_filing_years
+    : 0;
+  const ftaEligible = cleanFilingYears >= 3;
+  const reliefOpportunities = {
+    fta_eligible: ftaEligible,
+    fta_note: ftaEligible
+      ? 'Taxpayer has 3+ years of clean compliance. Eligible to request First Time Penalty Abatement for failure-to-file and failure-to-pay penalties. This could significantly reduce total liability.'
+      : 'prior_compliance not provided in intake.',
+    fta_clean_years: cleanFilingYears
+  };
+
   // ── Build model ──
   const model = {
     version: 'PaymentPlanModelV1',
@@ -316,6 +330,7 @@ function main() {
     },
     risk_flags: riskFlags,
     assumptions: assumptions,
+    relief_opportunities: reliefOpportunities,
     derived: {
       expense_breakdown: {
         housing: expenseBreakdown.housing,

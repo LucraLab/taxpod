@@ -25,11 +25,16 @@
 - Total liability of $2500.00 can be paid in 5 month(s) at $500.00/month
 - Payoff within 6 months qualifies for short-term payment plan
 - Short-term plans typically have lower setup fees and less paperwork
+- First Time Penalty Abatement may be available — could reduce penalty portion of total liability
 
 ## Why Not the Other Options
 
 - Long-term installment agreement not needed (payoff is 5 months, under 6-month threshold)
 - Partial payment IA not applicable (full payoff achievable in short term)
+
+## Relief Opportunities
+
+- **First Time Penalty Abatement (FTA):** Taxpayer has 3+ years of clean compliance. Eligible to request First Time Penalty Abatement for failure-to-file and failure-to-pay penalties. This could significantly reduce total liability.
 
 ## Risks & Assumptions
 
@@ -56,6 +61,7 @@
 - [ ] Confirm total balance due across all tax years
 - [ ] Request current penalty and interest calculations
 - [ ] Confirm no active liens or levies
+- [ ] Request First Time Penalty Abatement (FTA) for failure-to-file and failure-to-pay penalties — taxpayer has clean compliance history
 
 ### Action Items
 

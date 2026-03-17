@@ -1,0 +1,27 @@
+{
+  "version": "PaymentPlanModelV1",
+  "case_id": "case_oic",
+  "as_of_utc": "20260220T000000Z",
+  "monthly_capacity": {
+    "net_income_monthly": 3500,
+    "essential_expenses_monthly": 2700,
+    "debt_payments_monthly": 200,
+    "estimated_disposable_monthly": 600,
+    "capacity_best": 660,
+    "capacity_likely": 600,
+    "capacity_worst": 540
+  },
+  "intake_summary": {
+    "total_monthly_income": 3500,
+    "total_monthly_expenses": 2700,
+    "total_monthly_debt_payments": 200,
+    "dependents": 0,
+    "total_assets": 5000,
+    "income_source_count": 1,
+    "has_self_employment": false
+  },
+  "risk_flags": ["HIGH_LIABILITY"],
+  "assumptions": [
+    "Based on taxpayer-reported income and expenses"
+  ]
+}

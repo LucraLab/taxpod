@@ -56,6 +56,7 @@ function strategyLabel(type) {
     case 'LONG_TERM_INSTALLMENT_AGREEMENT': return 'Long-Term Installment Agreement';
     case 'PARTIAL_PAYMENT_INSTALLMENT_AGREEMENT': return 'Partial Payment Installment Agreement';
     case 'CPA_ESCALATION_REQUIRED': return 'CPA Escalation Required';
+    case 'OFFER_IN_COMPROMISE': return 'Offer in Compromise';
     default: return type;
   }
 }
@@ -144,6 +145,14 @@ function main() {
   }
   lines.push('');
 
+  // Section 4b: Relief Opportunities
+  if (rec.relief_opportunities && rec.relief_opportunities.fta_eligible) {
+    lines.push('## Relief Opportunities');
+    lines.push('');
+    lines.push(`- **First Time Penalty Abatement (FTA):** ${rec.relief_opportunities.fta_note}`);
+    lines.push('');
+  }
+
   // Section 5: Risks & Assumptions
   lines.push('## Risks & Assumptions');
   lines.push('');
@@ -209,6 +218,11 @@ function main() {
     } else if (strat.type === 'PARTIAL_PAYMENT_INSTALLMENT_AGREEMENT') {
       lines.push('- [ ] Work with CPA/EA to prepare Collection Information Statement (Form 433-A)');
       lines.push('- [ ] Contact IRS to negotiate partial payment installment agreement');
+    } else if (strat.type === 'OFFER_IN_COMPROMISE') {
+      lines.push('- [ ] Engage CPA or Enrolled Agent to evaluate OIC eligibility');
+      lines.push('- [ ] Prepare Form 433-A (Collection Information Statement)');
+      lines.push('- [ ] Prepare Form 656 (Offer in Compromise)');
+      lines.push('- [ ] Submit OIC with application fee (currently $205 unless low-income waiver applies)');
     }
     lines.push('- [ ] Confirm no active liens or levies before proceeding');
   }
