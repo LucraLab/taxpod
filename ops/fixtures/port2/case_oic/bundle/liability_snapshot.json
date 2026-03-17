@@ -1,0 +1,20 @@
+{
+  "case_id": "case_oic",
+  "tax_years": [
+    {
+      "year": 2021,
+      "tax_owed": 72000,
+      "penalty": 5000,
+      "interest": 3000,
+      "total_liability": 80000,
+      "filing_status": "single",
+      "agi": 0,
+      "wages": 0,
+      "withholding": 0,
+      "flags": [],
+      "sources": ["FCT-OIC01"]
+    }
+  ],
+  "generated_utc": "20260220T000000Z",
+  "vault_version": "13.2.0"
+}

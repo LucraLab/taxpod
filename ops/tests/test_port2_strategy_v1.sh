@@ -326,6 +326,88 @@ rm -rf "$TMP_D"
 echo ""
 
 # ══════════════════════════════════════════════
+# SUITE E_OIC: case_oic (OFFER_IN_COMPROMISE)
+# ══════════════════════════════════════════════
+FIX_OIC="fixtures/port2/case_oic"
+
+echo "━━━ Suite E_OIC: case_oic ━━━"
+echo ""
+
+echo "--- Test E_OIC1: Recommender output matches expected ---"
+TMP_OIC=$(mktemp -d)
+node "$RECOMMENDER" \
+  --case case_oic \
+  --bundle "$FIX_OIC/bundle" \
+  --model "$FIX_OIC/model/payment_plan_model.json" \
+  --out "$TMP_OIC" \
+  --as-of-utc 20260220T000000Z 2>&1 | head -6
+EXIT_OIC1=$?
+
+check "Recommender exits 0" "$([ $EXIT_OIC1 -eq 0 ] && echo PASS || echo FAIL)"
+
+if [ -f "$TMP_OIC/strategy_recommendation.json" ]; then
+  if diff -q "$TMP_OIC/strategy_recommendation.json" "$FIX_OIC/expected/strategy_recommendation.json" >/dev/null 2>&1; then
+    check "strategy_recommendation.json matches expected" "PASS"
+  else
+    check "strategy_recommendation.json matches expected" "FAIL"
+    echo "    DIFF:"
+    diff "$TMP_OIC/strategy_recommendation.json" "$FIX_OIC/expected/strategy_recommendation.json" | head -10
+  fi
+else
+  check "strategy_recommendation.json exists" "FAIL"
+fi
+
+echo ""
+echo "--- Test E_OIC2: Renderer output matches expected ---"
+node "$RENDERER" \
+  --strategy "$TMP_OIC/strategy_recommendation.json" \
+  --out "$TMP_OIC" 2>&1 | head -2
+EXIT_OIC2=$?
+
+check "Renderer exits 0" "$([ $EXIT_OIC2 -eq 0 ] && echo PASS || echo FAIL)"
+
+if [ -f "$TMP_OIC/payment_plan_recommendation.md" ]; then
+  if diff -q "$TMP_OIC/payment_plan_recommendation.md" "$FIX_OIC/expected/payment_plan_recommendation.md" >/dev/null 2>&1; then
+    check "payment_plan_recommendation.md matches expected" "PASS"
+  else
+    check "payment_plan_recommendation.md matches expected" "FAIL"
+    echo "    DIFF:"
+    diff "$TMP_OIC/payment_plan_recommendation.md" "$FIX_OIC/expected/payment_plan_recommendation.md" | head -10
+  fi
+else
+  check "payment_plan_recommendation.md exists" "FAIL"
+fi
+
+echo ""
+echo "--- Test E_OIC3: Strategy type ---"
+TYPE_OIC=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')).strategy.type)")
+check "Strategy is OFFER_IN_COMPROMISE" "$([ "$TYPE_OIC" = "OFFER_IN_COMPROMISE" ] && echo PASS || echo FAIL)"
+
+echo ""
+echo "--- Test E_OIC4: Payment is 0 and months is null ---"
+PAY_OIC=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')).strategy.recommended_monthly_payment)")
+MONTHS_OIC=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')).strategy.estimated_months_to_payoff)")
+check "Payment is 0" "$([ "$PAY_OIC" = "0" ] && echo PASS || echo FAIL)"
+check "Months is null" "$([ "$MONTHS_OIC" = "null" ] && echo PASS || echo FAIL)"
+
+echo ""
+echo "--- Test E_OIC5: RCP analysis correct ---"
+RCP_OIC=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')).strategy.rcp_analysis.rcp)")
+OIC_IND=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')).strategy.rcp_analysis.oic_indicated)")
+SETTLE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')).strategy.rcp_analysis.settlement_floor)")
+check "RCP is 11200" "$([ "$RCP_OIC" = "11200" ] && echo PASS || echo FAIL)"
+check "oic_indicated is true" "$([ "$OIC_IND" = "true" ] && echo PASS || echo FAIL)"
+check "settlement_floor is 11200" "$([ "$SETTLE" = "11200" ] && echo PASS || echo FAIL)"
+
+echo ""
+echo "--- Test E_OIC6: Risk flag HIGH_LIABILITY ---"
+HAS_HL=$(node -e "const r=JSON.parse(require('fs').readFileSync('$TMP_OIC/strategy_recommendation.json','utf8')); console.log(r.risk_flags.includes('HIGH_LIABILITY'))")
+check "HIGH_LIABILITY flag present" "$([ "$HAS_HL" = "true" ] && echo PASS || echo FAIL)"
+
+rm -rf "$TMP_OIC"
+echo ""
+
+# ══════════════════════════════════════════════
 # SUITE E: Determinism
 # ══════════════════════════════════════════════
 echo "━━━ Suite E: Determinism ━━━"

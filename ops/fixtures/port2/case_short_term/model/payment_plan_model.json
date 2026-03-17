@@ -14,5 +14,10 @@
   "risk_flags": [],
   "assumptions": [
     "Based on taxpayer-reported income and expenses"
-  ]
+  ],
+  "relief_opportunities": {
+    "fta_eligible": true,
+    "fta_note": "Taxpayer has 3+ years of clean compliance. Eligible to request First Time Penalty Abatement for failure-to-file and failure-to-pay penalties. This could significantly reduce total liability.",
+    "fta_clean_years": 3
+  }
 }

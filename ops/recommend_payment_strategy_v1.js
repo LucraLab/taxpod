@@ -39,6 +39,10 @@ function roundCents(v) { return Math.round(v * 100) / 100; }
 function sha256(buf) { return crypto.createHash('sha256').update(buf).digest('hex'); }
 function deterministicJson(obj) { return JSON.stringify(obj, null, 2) + '\n'; }
 function die(msg, code) { console.error(`ERROR: ${msg}`); process.exit(code || 1); }
+function fmtDollars(v) {
+  if (v === null || v === undefined) return 'N/A';
+  return '$' + v.toFixed(2);
+}
 
 // ── Main ──
 
@@ -107,6 +111,34 @@ function main() {
     escalationReasons.push('No tax year data and zero liability');
   }
 
+  // ── Compute RCP (Reasonable Collection Potential) ──
+  const intakeSummary = model.intake_summary || null;
+  const totalAssets = intakeSummary ? (intakeSummary.total_assets || 0) : null;
+  let rcpAnalysis = null;
+  let oicIndicated = false;
+
+  if (!mustEscalate && totalAssets !== null) {
+    const quickSaleAssets = Math.round(totalAssets * 0.80 * 100) / 100;
+    const collectionMonths = 12; // lump-sum OIC default
+    const incomeComponent = Math.round(capacityLikely * collectionMonths * 100) / 100;
+    const rcp = Math.round((incomeComponent + quickSaleAssets) * 100) / 100;
+    oicIndicated = capacityLikely > 0 && totalLiability > (rcp * 1.10);
+
+    rcpAnalysis = {
+      monthly_capacity_likely: capacityLikely,
+      collection_months_used: collectionMonths,
+      income_component: incomeComponent,
+      quick_sale_assets: quickSaleAssets,
+      rcp: rcp,
+      total_liability: totalLiability,
+      oic_indicated: oicIndicated,
+      settlement_floor: rcp,
+      notes: oicIndicated
+        ? `IRS may accept settlement of approximately ${fmtDollars(rcp)}. CPA/EA required to prepare Form 656.`
+        : `Total liability is within collection potential — standard installment agreement recommended.`
+    };
+  }
+
   // ── Build strategy ──
   let strategyType;
   let recommendedPayment;
@@ -124,6 +156,18 @@ function main() {
     whyThis.push('Cannot determine reliable strategy with available data');
     whyThis.push('Recommend consultation with CPA or Enrolled Agent before proceeding');
     whyNotOthers.push('All payment plan options require complete and verified tax data');
+  } else if (oicIndicated) {
+    // ── OIC strategy ──
+    strategyType = 'OFFER_IN_COMPROMISE';
+    recommendedPayment = 0;
+    estimatedMonths = null;
+    const rcpVal = rcpAnalysis ? rcpAnalysis.rcp : 0;
+    whyThis.push(`Total liability of ${fmtDollars(totalLiability)} exceeds Reasonable Collection Potential of ${fmtDollars(rcpVal)}`);
+    whyThis.push('IRS is unlikely to collect the full amount — OIC may resolve this for significantly less');
+    whyThis.push(`Estimated settlement range: approximately ${fmtDollars(rcpVal)} (subject to IRS verification and negotiation)`);
+    whyThis.push('CPA or Enrolled Agent required to prepare Form 656 (Offer in Compromise)');
+    whyNotOthers.push(`Standard installment agreements require paying full liability of ${fmtDollars(totalLiability)} — OIC provides a better outcome`);
+    whyNotOthers.push('Partial Payment IA still leaves full liability owed; OIC settles for less');
   } else {
     // Step 2: Compute months
     const effectivePayment = Math.max(capacityLikely, MIN_PAYMENT_FLOOR);
@@ -170,6 +214,9 @@ function main() {
     die('Computation produced NaN', 2);
   }
 
+  // ── FTA eligibility ──
+  const ftaEligible = !!(model.relief_opportunities && model.relief_opportunities.fta_eligible);
+
   // ── Documents needed ──
   const documentsNeeded = [
     'Income verification documents',
@@ -193,6 +240,13 @@ function main() {
   }
   callScriptQuestions.push('Confirm no active liens or levies');
 
+  if (ftaEligible) {
+    callScriptQuestions.push('Request First Time Penalty Abatement (FTA) for failure-to-file and failure-to-pay penalties — taxpayer has clean compliance history');
+    if (['SHORT_TERM_PAYMENT_PLAN', 'LONG_TERM_INSTALLMENT_AGREEMENT', 'PARTIAL_PAYMENT_INSTALLMENT_AGREEMENT'].includes(strategyType)) {
+      whyThis.push('First Time Penalty Abatement may be available — could reduce penalty portion of total liability');
+    }
+  }
+
   // ── Assumptions ──
   const assumptions = [
     'This is a planning estimate based on reported data',
@@ -201,6 +255,18 @@ function main() {
     'Monthly capacity from taxpayer-reported income and expenses',
     `Strategy thresholds: short-term <= ${SHORT_TERM_MAX_MONTHS} months, long-term <= ${LONG_TERM_MAX_MONTHS} months, minimum payment $${MIN_PAYMENT_FLOOR}`
   ];
+
+  // ── Build strategy object ──
+  const strategyObj = {
+    type: strategyType,
+    recommended_monthly_payment: recommendedPayment,
+    estimated_months_to_payoff: estimatedMonths,
+    why_this_strategy: whyThis,
+    why_not_others: whyNotOthers
+  };
+  if (rcpAnalysis) {
+    strategyObj.rcp_analysis = rcpAnalysis;
+  }
 
   // ── Build output ──
   const recommendation = {
@@ -213,13 +279,7 @@ function main() {
       total_liability: totalLiability,
       capacity_likely: capacityLikely
     },
-    strategy: {
-      type: strategyType,
-      recommended_monthly_payment: recommendedPayment,
-      estimated_months_to_payoff: estimatedMonths,
-      why_this_strategy: whyThis,
-      why_not_others: whyNotOthers
-    },
+    strategy: strategyObj,
     execution: {
       documents_needed: documentsNeeded,
       call_script_questions: callScriptQuestions
@@ -227,6 +287,10 @@ function main() {
     risk_flags: riskFlags,
     assumptions: assumptions
   };
+
+  if (model.relief_opportunities) {
+    recommendation.relief_opportunities = model.relief_opportunities;
+  }
 
   // ── Write atomically ──
   const outFile = path.join(args.outDir, 'strategy_recommendation.json');

@@ -78,6 +78,7 @@ function strategyLabel(type) {
     case 'LONG_TERM_INSTALLMENT_AGREEMENT': return 'Long-Term Installment Agreement';
     case 'PARTIAL_PAYMENT_INSTALLMENT_AGREEMENT': return 'Partial Payment Installment Agreement';
     case 'CPA_ESCALATION_REQUIRED': return 'CPA Escalation Required';
+    case 'OFFER_IN_COMPROMISE': return 'Offer in Compromise';
     default: return type;
   }
 }

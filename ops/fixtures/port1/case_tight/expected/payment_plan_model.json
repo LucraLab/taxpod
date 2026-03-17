@@ -99,6 +99,11 @@
     "No adjustment for seasonality or future income changes",
     "Liability totals from TaxVault as of bundle export date"
   ],
+  "relief_opportunities": {
+    "fta_eligible": false,
+    "fta_note": "prior_compliance not provided in intake.",
+    "fta_clean_years": 0
+  },
   "derived": {
     "expense_breakdown": {
       "housing": 1580,
