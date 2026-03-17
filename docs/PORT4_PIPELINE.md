@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Created:** 2026-02-22
-**Status:** Draft (spec only — no runtime implementation yet)
+**Status:** Active — PORT4.1 (FeedbackV1 → ChangeSetV1) and PORT4.2 (Apply Door) fully implemented and tested. Markdown intake (Stage 1) and automated Regenerate (Stage 7) not yet implemented.
 **Depends on:** CPA_FEEDBACK_V1 contract
 
 ## Overview
@@ -126,39 +126,43 @@ PORT4 is the first TaxPod stage that receives **external human input** (CPA/EA f
 
 ### Stage 5: Human Approval Gate
 
-**V1 scope:** The ChangeSet is written to disk. Application requires a **separate, future command** with explicit `--apply` flag. PORT4 V1 stops here.
+PORT4.1 stops here: the ChangeSet is written to disk. A human must review `changeset.json` and produce an approval proof file before the Apply Door can execute.
 
-**Design for future:**
-- Human reviews changeset.json
-- Human runs: `node apply_changeset_v1.js --changeset <path> --confirm`
-- Apply script re-validates drift detection before writing
-- Apply script records before/after hashes
+### Stage 6: Apply (IMPLEMENTED — ops/apply/apply_changeset_v1.js)
 
-### Stage 6: Apply (FUTURE — not in V1)
+**The Apply Door** is the single authorized writer for all TaxPod runtime artifacts:
+- Exactly ONE script is authorized to write changes to artifacts
+- Enforces 9-gate validation sequence (schema → case match → approval proof → allowlist → drift check)
+- Re-validates all `old_value` fields against current state before writing
+- Records before-hash and after-hash for every modified file (apply receipt)
+- Atomic writes only (temp file → rename; no partial state)
+- Append-only audit log at `audit/taxpod_apply.jsonl`
 
-**The "Apply Door" concept:**
-- Exactly ONE function/script is authorized to write changes to artifacts
-- Must re-validate all `old_value` fields against current state (drift re-check)
-- Must record before-hash and after-hash for every modified file
-- Must be idempotent: applying the same changeset twice = no-op on second run
-- Must fail-closed if any drift detected since changeset was created
+CLI:
+```bash
+node ops/apply/apply_changeset_v1.js \
+  --changeset <path> --case <CASE_ID> \
+  --approve-proof <path_to_approval.md> \
+  --approve-proof-sha256 <hex> \
+  [--dry-run] [--runtime-root <path>]
+```
 
-### Stage 7: Regenerate (FUTURE — not in V1)
+### Stage 7: Regenerate (FUTURE — automated orchestration not yet implemented)
 
-After apply, the cascade triggers:
+After apply, the cascade markers written by the Apply Door signal which ports need rerunning. Future orchestration will handle this automatically. For now, run manually based on `derived_impacts`:
 
 ```
 If derived_impacts includes REQUIRE_REEXPORT_BUNDLE:
-  → rerun PORT0 (bash ops/taxpod/run_port0_export_bundle.sh --case <case> --force)
+  → rerun PORT0: bash ops/export_payment_plan_bundle_v1.sh --case <case>
 
 If derived_impacts includes REQUIRE_RERUN_PORT1:
-  → rerun PORT1 (bash ops/taxpod/run_port1_payment_model.sh --case <case> --force)
+  → rerun PORT1: bash ops/run_port1_payment_capacity.sh --case <case> --bundle <dir> --intake <file> --force
 
 If derived_impacts includes REQUIRE_RERUN_PORT2:
-  → rerun PORT2 (bash ops/taxpod/run_port2_strategy_recommendation.sh --case <case> --force)
+  → rerun PORT2: bash ops/run_port2_strategy_recommendation.sh --case <case> --bundle <dir> --model <file> --force
 
 If derived_impacts includes REQUIRE_REBUILD_PORT3:
-  → rerun PORT3 (bash ops/taxpod/run_port3_cpa_package.sh --case <case> --force)
+  → rerun PORT3: bash ops/run_port3_cpa_package.sh --case <case> --force
 ```
 
 Each rerun produces a new timestamped output — originals are never overwritten.

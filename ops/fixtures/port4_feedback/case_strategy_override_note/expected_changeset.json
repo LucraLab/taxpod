@@ -1,0 +1,53 @@
+{
+  "version": "ChangeSetV1",
+  "changeset_id": "case_demo_package_cs_20260222T170100Z",
+  "case_id": "case_demo_package",
+  "created_utc": "20260222T170100Z",
+  "source_feedback_id": "case_demo_package_fb_20260222T170000Z",
+  "package_manifest_sha256": "df4e7c8cbe06c4992cffa374fe7ae4d8ab9423c338432a9c4e086f52c5fe3a92",
+  "actions": [
+    {
+      "action_id": "act_001",
+      "source_item_id": "item_001",
+      "action_type": "PATCH_JSON",
+      "target": {
+        "artifact": "STRATEGY",
+        "path": "/strategy/why_this_strategy"
+      },
+      "patch": {
+        "op": "replace",
+        "path": "/strategy/why_this_strategy",
+        "value": [
+          "Total liability of $5650.00 can be paid in 6 months at $1000.00/month",
+          "Capacity of $1000.00/month exceeds minimum floor of $50",
+          "Standard short-term payment plan — no installment agreement required",
+          "EA note: Verify that no federal tax lien is active before setting up payment plan. Active lien may require Form 12277 lien withdrawal request as part of resolution."
+        ],
+        "old_value": [
+          "Total liability of $5650.00 can be paid in 6 months at $1000.00/month",
+          "Capacity of $1000.00/month exceeds minimum floor of $50",
+          "Standard short-term payment plan — no installment agreement required"
+        ]
+      },
+      "reason": "EA reviewed strategy. Added lien verification note. Client should confirm with IRS whether a Notice of Federal Tax Lien has been filed before initiating payment setup.",
+      "requires_human_approval": true
+    },
+    {
+      "action_id": "act_002",
+      "source_item_id": "item_001",
+      "action_type": "REQUIRE_REBUILD_PORT3",
+      "target": {
+        "artifact": "PACKAGE"
+      },
+      "reason": "Strategy note changed; CPA package must be rebuilt.",
+      "requires_human_approval": true
+    }
+  ],
+  "derived_impacts": [
+    "REQUIRE_REBUILD_PORT3"
+  ],
+  "audit": {
+    "input_feedback_sha256": "3e5474500bebdde2ec0dae2200297cd66038f0c0155ac0daa0a6ea4f126dc4d3",
+    "changeset_sha256": "275c287e945984190aab6ff847f4dcc8a13fd42081070c95d6ac5176bffdb96a"
+  }
+}

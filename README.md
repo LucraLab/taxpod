@@ -10,11 +10,12 @@ IRS Resolution Pod for the OpenClaw agent system.
 
 ## Ports
 
+- PORT0: Export payment plan bundle from TaxVault index + facts ledger
 - PORT1: Payment capacity model
 - PORT2: Strategy recommendation
 - PORT3: CPA package builder
-- PORT4: Apply door (human-gated write system)
-- PORT4.1: Feedback-to-changeset
+- PORT4.1: Feedback-to-changeset (FeedbackV1 → ChangeSetV1)
+- PORT4.2: Apply door (human-gated write system)
 
 ## Setup
 

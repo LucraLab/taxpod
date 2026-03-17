@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Created:** 2026-02-22
-**Status:** Draft (spec only — no runtime implementation yet)
+**Status:** Active — PORT4.1 (FeedbackV1 → ChangeSetV1) and PORT4.2 (Apply Door) implemented and tested. Markdown intake not yet implemented.
 **Depends on:** CpaPackageV1 (PORT3)
 **Produces:** ChangeSetV1 (structured change request)
 
@@ -120,19 +120,25 @@ The remainder of this spec defines the **Structured JSON** format. Markdown norm
 ```
 
 **STRATEGY_OVERRIDE_NOTE:**
+
+Implemented as a `PATCH_JSON` action on the `STRATEGY` artifact. The `target.path` field is **required** and must point to an allowed path (see allowlist: `/strategy/why_this_strategy`, `/strategy/why_not_others`, `/assumptions`, `/execution/*`).
+
 ```
 {
-  "current_strategy":     string (current strategy type),
-  "recommended_strategy": string | null (CPA recommended, or null if just a note),
-  "note":                 string (CPA explanation)
+  "old_value": any (current value at target.path — for drift detection),
+  "new_value": any (replacement value)
 }
 ```
+
+Example: to add a CPA note to `why_this_strategy`, set `target.path` to `strategy.why_this_strategy` and provide the updated array as `new_value`.
 
 **DISPUTE_OR_UNCERTAIN:**
 ```
 {
-  "flag":        "NEEDS_VERIFICATION | DISPUTED_AMOUNT | MISSING_FILING | POSSIBLE_ERROR",
-  "description": string
+  "flag":       "NEEDS_VERIFICATION | DISPUTED_AMOUNT | MISSING_FILING | POSSIBLE_ERROR",
+  "scope":      string (what aspect is uncertain, e.g., "filing_status", "income_amount"),
+  "year_hint":  string (optional, e.g., "2020"),
+  "reason":     string (CPA explanation of the uncertainty)
 }
 ```
 

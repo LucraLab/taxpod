@@ -1,0 +1,32 @@
+{
+  "version": "FeedbackV1",
+  "feedback_id": "case_demo_package_fb_20260222T180000Z",
+  "case_id": "case_demo_package",
+  "source": "CPA",
+  "received_utc": "20260222T180000Z",
+  "package_manifest_sha256": "df4e7c8cbe06c4992cffa374fe7ae4d8ab9423c338432a9c4e086f52c5fe3a92",
+  "items": [
+    {
+      "item_id": "item_001",
+      "type": "PAYMENT_CAPACITY_ASSUMPTION_FIX",
+      "target": {
+        "artifact": "PAYMENT_MODEL",
+        "path": "intake_summary.total_monthly_income"
+      },
+      "proposed_change": {
+        "old_value": 6000,
+        "new_value": 7500,
+        "reason": "Client provided updated pay stub showing gross monthly income of $7500, not $6000 as reported at intake. W-2 wage figure was used but client receives $1500/month in confirmed rental income that was omitted."
+      },
+      "evidence": {
+        "notes": "CPA reviewed recent pay stubs and bank statements. Client's rental income from a secondary property was not captured in the original intake. Total verifiable monthly income is $7500. This increases capacity_likely and changes strategy eligibility.",
+        "attachments": [
+          "pay_stub_march_2026.pdf",
+          "rental_lease_agreement.pdf"
+        ],
+        "confidence": "HIGH"
+      },
+      "requires_human_approval": true
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "version": "ChangeSetV1",
+  "changeset_id": "case_demo_package_cs_20260222T180100Z",
+  "case_id": "case_demo_package",
+  "created_utc": "20260222T180100Z",
+  "source_feedback_id": "case_demo_package_fb_20260222T180000Z",
+  "package_manifest_sha256": "df4e7c8cbe06c4992cffa374fe7ae4d8ab9423c338432a9c4e086f52c5fe3a92",
+  "actions": [
+    {
+      "action_id": "act_001",
+      "source_item_id": "item_001",
+      "action_type": "PATCH_JSON",
+      "target": {
+        "artifact": "PAYMENT_MODEL",
+        "path": "/intake_summary/total_monthly_income"
+      },
+      "patch": {
+        "op": "replace",
+        "path": "/intake_summary/total_monthly_income",
+        "value": 7500,
+        "old_value": 6000
+      },
+      "reason": "CPA reviewed recent pay stubs and bank statements. Client's rental income from a secondary property was not captured in the original intake. Total verifiable monthly income is $7500. This increases capacity_likely and changes strategy eligibility.",
+      "requires_human_approval": true
+    },
+    {
+      "action_id": "act_002",
+      "source_item_id": "item_001",
+      "action_type": "REQUIRE_RERUN_PORT1",
+      "target": {
+        "artifact": "PAYMENT_MODEL"
+      },
+      "reason": "Payment capacity assumption changed; payment model must be recalculated.",
+      "requires_human_approval": true
+    },
+    {
+      "action_id": "act_003",
+      "source_item_id": "item_001",
+      "action_type": "REQUIRE_RERUN_PORT2",
+      "target": {
+        "artifact": "STRATEGY"
+      },
+      "reason": "Payment model changed; strategy must be recalculated.",
+      "requires_human_approval": true
+    },
+    {
+      "action_id": "act_004",
+      "source_item_id": "item_001",
+      "action_type": "REQUIRE_REBUILD_PORT3",
+      "target": {
+        "artifact": "PACKAGE"
+      },
+      "reason": "Upstream artifacts changed; CPA package must be rebuilt.",
+      "requires_human_approval": true
+    }
+  ],
+  "derived_impacts": [
+    "REQUIRE_REBUILD_PORT3",
+    "REQUIRE_RERUN_PORT1",
+    "REQUIRE_RERUN_PORT2"
+  ],
+  "audit": {
+    "input_feedback_sha256": "59b624810fe50dc60f1b8f72c12b684d91ac12b98910fb51dcf6395d81e52112",
+    "changeset_sha256": "daa2a70be3c6eb03c600fd4915af4d579980e692e17659c4387d6f6f92c3eea5"
+  }
+}

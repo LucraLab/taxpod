@@ -4,7 +4,7 @@
 **Created:** 2026-02-22
 **Status:** Implementation
 **Depends on:** ChangeSetV1 (PORT4 spec, PR #48)
-**Script:** `ops/taxpod/apply/apply_changeset_v1.js`
+**Script:** `ops/apply/apply_changeset_v1.js`
 
 > **This is the ONLY writer.** No other script is authorized to mutate runtime TaxPod artifacts. All writes go through this single entrypoint.
 

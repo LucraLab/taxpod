@@ -1,0 +1,37 @@
+{
+  "version": "FeedbackV1",
+  "feedback_id": "case_demo_package_fb_20260222T170000Z",
+  "case_id": "case_demo_package",
+  "source": "EA",
+  "received_utc": "20260222T170000Z",
+  "package_manifest_sha256": "df4e7c8cbe06c4992cffa374fe7ae4d8ab9423c338432a9c4e086f52c5fe3a92",
+  "items": [
+    {
+      "item_id": "item_001",
+      "type": "STRATEGY_OVERRIDE_NOTE",
+      "target": {
+        "artifact": "STRATEGY",
+        "path": "strategy.why_this_strategy"
+      },
+      "proposed_change": {
+        "old_value": [
+          "Total liability of $5650.00 can be paid in 6 months at $1000.00/month",
+          "Capacity of $1000.00/month exceeds minimum floor of $50",
+          "Standard short-term payment plan — no installment agreement required"
+        ],
+        "new_value": [
+          "Total liability of $5650.00 can be paid in 6 months at $1000.00/month",
+          "Capacity of $1000.00/month exceeds minimum floor of $50",
+          "Standard short-term payment plan — no installment agreement required",
+          "EA note: Verify that no federal tax lien is active before setting up payment plan. Active lien may require Form 12277 lien withdrawal request as part of resolution."
+        ]
+      },
+      "evidence": {
+        "notes": "EA reviewed strategy. Added lien verification note. Client should confirm with IRS whether a Notice of Federal Tax Lien has been filed before initiating payment setup.",
+        "attachments": [],
+        "confidence": "HIGH"
+      },
+      "requires_human_approval": true
+    }
+  ]
+}

@@ -242,6 +242,72 @@ rm -rf "$TMPOUT_E1"
 
 echo ""
 echo "========================================="
+echo "  Suite F: case_strategy_override_note"
+echo "========================================="
+
+FIXTURE_F="$FIXTURE_ROOT/case_strategy_override_note"
+TMPOUT_F=$(mktemp -d)
+
+F_EXIT=0
+node "$TRANSFORMER" \
+  --feedback "$FIXTURE_F/input_feedback.json" \
+  --out "$TMPOUT_F" \
+  --created-utc 20260222T170100Z \
+  >/dev/null 2>&1 || F_EXIT=$?
+
+check "F1: Exit code 0" "[ $F_EXIT -eq 0 ]"
+check "F2: changeset.json exists" "[ -f '$TMPOUT_F/changeset.json' ]"
+check "F3: Exact match with expected" "diff -q '$TMPOUT_F/changeset.json' '$FIXTURE_F/expected_changeset.json' >/dev/null 2>&1"
+
+F_ACTIONS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMPOUT_F/changeset.json','utf8')).actions.length)")
+F_IMPACTS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMPOUT_F/changeset.json','utf8')).derived_impacts.join(','))")
+F_ACT_TYPES=$(node -e "const c=JSON.parse(require('fs').readFileSync('$TMPOUT_F/changeset.json','utf8'));console.log(c.actions.map(a=>a.action_type).join(','))")
+F_PATCH_PATH=$(node -e "const c=JSON.parse(require('fs').readFileSync('$TMPOUT_F/changeset.json','utf8'));console.log(c.actions[0].patch.path)")
+
+check "F4: 2 actions" "[ '$F_ACTIONS' = '2' ]"
+check "F5: Derived impacts: REQUIRE_REBUILD_PORT3 only" "[ '$F_IMPACTS' = 'REQUIRE_REBUILD_PORT3' ]"
+check "F6: Action types: PATCH_JSON + REQUIRE_REBUILD_PORT3" "[ '$F_ACT_TYPES' = 'PATCH_JSON,REQUIRE_REBUILD_PORT3' ]"
+check "F7: Patch path is /strategy/why_this_strategy" "[ '$F_PATCH_PATH' = '/strategy/why_this_strategy' ]"
+
+rm -rf "$TMPOUT_F"
+
+echo ""
+echo "========================================="
+echo "  Suite G: case_capacity_assumption_fix"
+echo "========================================="
+
+FIXTURE_G="$FIXTURE_ROOT/case_capacity_assumption_fix"
+TMPOUT_G=$(mktemp -d)
+
+G_EXIT=0
+node "$TRANSFORMER" \
+  --feedback "$FIXTURE_G/input_feedback.json" \
+  --out "$TMPOUT_G" \
+  --created-utc 20260222T180100Z \
+  >/dev/null 2>&1 || G_EXIT=$?
+
+check "G1: Exit code 0" "[ $G_EXIT -eq 0 ]"
+check "G2: changeset.json exists" "[ -f '$TMPOUT_G/changeset.json' ]"
+check "G3: Exact match with expected" "diff -q '$TMPOUT_G/changeset.json' '$FIXTURE_G/expected_changeset.json' >/dev/null 2>&1"
+
+G_ACTIONS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMPOUT_G/changeset.json','utf8')).actions.length)")
+G_IMPACTS=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMPOUT_G/changeset.json','utf8')).derived_impacts.sort().join(','))")
+G_ACT_TYPES=$(node -e "const c=JSON.parse(require('fs').readFileSync('$TMPOUT_G/changeset.json','utf8'));console.log(c.actions.map(a=>a.action_type).join(','))")
+G_PATCH_PATH=$(node -e "const c=JSON.parse(require('fs').readFileSync('$TMPOUT_G/changeset.json','utf8'));console.log(c.actions[0].patch.path)")
+G_NEW_VAL=$(node -e "const c=JSON.parse(require('fs').readFileSync('$TMPOUT_G/changeset.json','utf8'));console.log(c.actions[0].patch.value)")
+G_OLD_VAL=$(node -e "const c=JSON.parse(require('fs').readFileSync('$TMPOUT_G/changeset.json','utf8'));console.log(c.actions[0].patch.old_value)")
+
+check "G4: 4 actions" "[ '$G_ACTIONS' = '4' ]"
+check "G5: Derived impacts include PORT1, PORT2, PORT3" "[ '$G_IMPACTS' = 'REQUIRE_REBUILD_PORT3,REQUIRE_RERUN_PORT1,REQUIRE_RERUN_PORT2' ]"
+check "G6: Action types in order" "[ '$G_ACT_TYPES' = 'PATCH_JSON,REQUIRE_RERUN_PORT1,REQUIRE_RERUN_PORT2,REQUIRE_REBUILD_PORT3' ]"
+check "G7: Patch path is /intake_summary/total_monthly_income" "[ '$G_PATCH_PATH' = '/intake_summary/total_monthly_income' ]"
+check "G8: New value is 7500" "[ '$G_NEW_VAL' = '7500' ]"
+check "G9: Old value is 6000" "[ '$G_OLD_VAL' = '6000' ]"
+
+rm -rf "$TMPOUT_G"
+
+echo ""
+echo "========================================="
 echo "  TESTS: $PASS / $TOTAL PASSED"
 echo "========================================="
 
