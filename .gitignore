@@ -1,0 +1,13 @@
+# Case data — NEVER commit personal tax data
+cases/
+runtime/
+*.json.local
+*.financial
+*.transcript
+*.notice
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
