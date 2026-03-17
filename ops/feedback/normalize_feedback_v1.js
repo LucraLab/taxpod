@@ -22,7 +22,7 @@ const path   = require('path');
 function loadSchema() {
   // Try well-known paths relative to this file
   const candidates = [
-    path.resolve(__dirname, '../../docs/taxpod/schemas/feedback_v1.schema.json'),
+    path.resolve(__dirname, '../../docs/schemas/feedback_v1.schema.json'),
     path.resolve(__dirname, '../schemas/feedback_v1.schema.json'),
   ];
   for (const p of candidates) {

@@ -1,7 +1,7 @@
 #!/bin/bash
 # run_port3_cpa_package.sh — PORT3 Orchestration Wrapper
 # Discovers newest bundle/model/strategy for a case (or takes explicit args).
-# Location: ops/taxpod/run_port3_cpa_package.sh
+# Location: ops/run_port3_cpa_package.sh
 #
 # Usage:
 #   bash run_port3_cpa_package.sh \

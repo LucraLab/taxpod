@@ -1,6 +1,6 @@
 #!/bin/bash
 # export_payment_plan_bundle_v1.sh — Wrapper for PaymentPlanBundleV1 exporter
-# Location: ops/taxpod/export_payment_plan_bundle_v1.sh
+# Location: ops/export_payment_plan_bundle_v1.sh
 #
 # Arguments:
 #   --case <CASE_ID>     Required. Case identifier.
@@ -11,7 +11,7 @@
 #
 # Exit codes: 0=success, 1=input error, 2=hash failure, 3=output exists
 
-set -uo pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 EXPORTER="${SCRIPT_DIR}/export_payment_plan_bundle_v1.js"

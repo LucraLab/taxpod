@@ -15,7 +15,6 @@ set -euo pipefail
 ###############################################################################
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TRANSFORMER="$SCRIPT_DIR/feedback_to_changeset_v1.js"
 
 if [ ! -f "$TRANSFORMER" ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 # run_port2_strategy_recommendation.sh — PORT2 Orchestration Wrapper
 # Runs strategy recommender + report renderer in sequence.
-# Location: ops/taxpod/run_port2_strategy_recommendation.sh
+# Location: ops/run_port2_strategy_recommendation.sh
 #
 # Usage:
 #   bash run_port2_strategy_recommendation.sh \
