@@ -22,6 +22,11 @@ const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
 
+// ── Load IRS Collection Standards ──
+const IRS_STANDARDS = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, 'data/irs_collection_standards_2025.json'), 'utf8')
+);
+
 // ── Helpers ──
 
 function parseArgs(argv) {
@@ -53,6 +58,27 @@ function deterministicJson(obj) {
 function die(msg, code) {
   console.error(`ERROR: ${msg}`);
   process.exit(code || 1);
+}
+
+// Parse YYYYMMDD string as UTC Date
+function parseYmd(s) {
+  const y = parseInt(s.slice(0, 4), 10);
+  const m = parseInt(s.slice(4, 6), 10) - 1;
+  const d = parseInt(s.slice(6, 8), 10);
+  return new Date(Date.UTC(y, m, d));
+}
+
+// Parse as_of_utc string (e.g. "20260220T000000Z") — only the date portion is used
+function parseAsOfUtc(s) {
+  return parseYmd(s.slice(0, 8));
+}
+
+// Format a UTC Date as YYYYMMDD
+function formatYmd(date) {
+  const y = date.getUTCFullYear().toString().padStart(4, '0');
+  const m = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+  const d = date.getUTCDate().toString().padStart(2, '0');
+  return `${y}${m}${d}`;
 }
 
 // ── Validation ──
@@ -267,6 +293,119 @@ function main() {
     }
   }
 
+  // ── IRS Allowable Expenses (Phase 1A) ──
+  const householdSize = (typeof intake.household_size === 'number' && intake.household_size >= 1)
+    ? intake.household_size
+    : 1;
+  const vehiclesRaw = (typeof intake.vehicles === 'number' && intake.vehicles >= 0)
+    ? intake.vehicles
+    : 0;
+  const vehicles = Math.min(vehiclesRaw, 2);
+  const age65plus = intake.taxpayer_age_65_plus === true;
+
+  // National standard by household size
+  const ns = IRS_STANDARDS.national_standards;
+  let nationalStd;
+  if (householdSize === 1) nationalStd = ns.household_size_1;
+  else if (householdSize === 2) nationalStd = ns.household_size_2;
+  else if (householdSize === 3) nationalStd = ns.household_size_3;
+  else if (householdSize === 4) nationalStd = ns.household_size_4;
+  else nationalStd = ns.household_size_4 + (householdSize - 4) * ns.additional_person;
+
+  const transportOwnership = IRS_STANDARDS.transportation_ownership[`vehicles_${vehicles}`];
+  const transportOperating = IRS_STANDARDS.transportation_operating[`vehicles_${vehicles}`];
+  const healthCare = age65plus
+    ? IRS_STANDARDS.health_care.age_65_plus
+    : IRS_STANDARDS.health_care.under_65;
+
+  const totalIrsAllowable = roundCents(nationalStd + transportOwnership + transportOperating + healthCare);
+  const selfReportedExpenses = totalMonthlyExpenses;
+  const variance = roundCents(selfReportedExpenses - totalIrsAllowable);
+
+  let varianceNote;
+  if (variance > 0) {
+    varianceNote = `Self-reported expenses exceed IRS national standard by $${variance.toFixed(2)}/month. IRS may only allow $${totalIrsAllowable.toFixed(2)}/month in installment agreement or OIC calculations.`;
+  } else if (variance < 0) {
+    varianceNote = `Self-reported expenses are $${Math.abs(variance).toFixed(2)}/month below IRS national standard.`;
+  } else {
+    varianceNote = `Self-reported expenses match IRS national standard.`;
+  }
+
+  const irsAllowableExpenses = {
+    national_standard: roundCents(nationalStd),
+    transportation_ownership: roundCents(transportOwnership),
+    transportation_operating: roundCents(transportOperating),
+    health_care: roundCents(healthCare),
+    total_irs_allowable: totalIrsAllowable,
+    self_reported_essential_expenses: selfReportedExpenses,
+    variance: variance,
+    variance_note: varianceNote,
+    household_size_used: householdSize,
+    vehicles_used: vehicles,
+    taxpayer_age_65_plus: age65plus
+  };
+
+  // ── CSED Analysis (Phase 1B) ──
+  const assessmentDates = liability.assessment_dates || [];
+  let csedAnalysis;
+
+  if (assessmentDates.length === 0) {
+    csedAnalysis = {
+      computed: false,
+      reason: 'No assessment dates provided in liability snapshot.'
+    };
+  } else {
+    const asOfDate = parseAsOfUtc(asOfUtc);
+
+    const taxYearsCsed = assessmentDates.map(ad => {
+      const assessDate = parseYmd(ad.assessment_date);
+      const expiryDate = new Date(Date.UTC(
+        assessDate.getUTCFullYear() + 10,
+        assessDate.getUTCMonth(),
+        assessDate.getUTCDate()
+      ));
+      const expiryStr = formatYmd(expiryDate);
+      const daysRemaining = Math.floor((expiryDate - asOfDate) / (1000 * 60 * 60 * 24));
+      return {
+        year: ad.year,
+        assessment_date: ad.assessment_date,
+        csed_expires_utc: expiryStr,
+        csed_days_remaining: daysRemaining,
+        csed_expired: daysRemaining <= 0
+      };
+    });
+
+    // Sort by expiry to find earliest
+    const sorted = [...taxYearsCsed].sort((a, b) =>
+      a.csed_expires_utc.localeCompare(b.csed_expires_utc)
+    );
+    const earliestExpiry = sorted[0].csed_expires_utc;
+    const nearThreshold = 730;
+    const anyNearExpiry = taxYearsCsed.some(
+      y => y.csed_days_remaining > 0 && y.csed_days_remaining <= nearThreshold
+    );
+    const anyExpired = taxYearsCsed.some(y => y.csed_expired);
+
+    csedAnalysis = {
+      computed: true,
+      as_of_utc: asOfUtc,
+      tax_years: taxYearsCsed,
+      earliest_expiry_utc: earliestExpiry,
+      any_near_expiry: anyNearExpiry,
+      near_expiry_threshold_days: nearThreshold,
+      any_expired: anyExpired,
+      collection_window_note: `IRS has until ${earliestExpiry} to collect the earliest-assessed year.`
+    };
+
+    // CSED risk flags added below after base flags
+    if (anyNearExpiry) {
+      csedAnalysis._flag_near_expiry = true;
+    }
+    if (anyExpired) {
+      csedAnalysis._flag_expired = true;
+    }
+  }
+
   // ── Risk flags ──
   const riskFlags = [];
   if (disposable < 0) riskFlags.push('NEGATIVE_CASHFLOW');
@@ -275,6 +414,17 @@ function main() {
   if (hasSelfEmployment) riskFlags.push('SELF_EMPLOYMENT_COMPLEXITY');
   if (hasIncompleteData) riskFlags.push('INCOMPLETE_TAX_DATA');
   if (totalAssets < 1000) riskFlags.push('LOW_ASSETS');
+  // Phase 1A
+  if (selfReportedExpenses - totalIrsAllowable > 500) riskFlags.push('EXPENSES_EXCEED_IRS_STANDARDS');
+  // Phase 1B CSED flags
+  if (csedAnalysis.computed) {
+    if (csedAnalysis.any_near_expiry) riskFlags.push('CSED_NEAR_EXPIRY');
+    if (csedAnalysis.any_expired) riskFlags.push('CSED_EXPIRED');
+  }
+
+  // Clean up internal markers
+  if (csedAnalysis._flag_near_expiry !== undefined) delete csedAnalysis._flag_near_expiry;
+  if (csedAnalysis._flag_expired !== undefined) delete csedAnalysis._flag_expired;
 
   // ── Assumptions ──
   const assumptions = [
@@ -314,6 +464,8 @@ function main() {
       capacity_likely: capacityLikely,
       capacity_worst: capacityWorst
     },
+    irs_allowable_expenses: irsAllowableExpenses,
+    csed_analysis: csedAnalysis,
     risk_flags: riskFlags,
     assumptions: assumptions,
     derived: {

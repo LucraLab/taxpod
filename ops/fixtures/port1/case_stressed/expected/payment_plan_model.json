@@ -61,10 +61,28 @@
     "capacity_likely": -2225,
     "capacity_worst": -2002.5
   },
+  "irs_allowable_expenses": {
+    "national_standard": 1410,
+    "transportation_ownership": 522,
+    "transportation_operating": 277,
+    "health_care": 75,
+    "total_irs_allowable": 2284,
+    "self_reported_essential_expenses": 4395,
+    "variance": 2111,
+    "variance_note": "Self-reported expenses exceed IRS national standard by $2111.00/month. IRS may only allow $2284.00/month in installment agreement or OIC calculations.",
+    "household_size_used": 2,
+    "vehicles_used": 1,
+    "taxpayer_age_65_plus": false
+  },
+  "csed_analysis": {
+    "computed": false,
+    "reason": "No assessment dates provided in liability snapshot."
+  },
   "risk_flags": [
     "NEGATIVE_CASHFLOW",
     "SELF_EMPLOYMENT_COMPLEXITY",
-    "INCOMPLETE_TAX_DATA"
+    "INCOMPLETE_TAX_DATA",
+    "EXPENSES_EXCEED_IRS_STANDARDS"
   ],
   "assumptions": [
     "Income and expenses as reported by taxpayer on intake form",

@@ -90,6 +90,8 @@
       "balance": 14200
     }
   ],
+  "household_size": 2,
+  "vehicles": 1,
   "dependents": 2,
   "assets": {
     "checking": 450,

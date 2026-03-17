@@ -91,11 +91,13 @@ else
   check "financial_docs_needed.md exists" "FAIL"
 fi
 
-# ── Test A3: Risk flags correct (case_tight has none) ──
+# ── Test A3: Risk flags correct (case_tight has EXPENSES_EXCEED_IRS_STANDARDS only) ──
 echo ""
 echo "--- Test A3: Risk flags ---"
 FLAGS_A=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$TMP_A1/payment_plan_model.json','utf8')).risk_flags.length)")
-check "case_tight has 0 risk flags" "$([ "$FLAGS_A" = "0" ] && echo PASS || echo FAIL)"
+check "case_tight has 1 risk flag" "$([ "$FLAGS_A" = "1" ] && echo PASS || echo FAIL)"
+HAS_EXP_A=$(node -e "const f=JSON.parse(require('fs').readFileSync('$TMP_A1/payment_plan_model.json','utf8')).risk_flags; console.log(f.includes('EXPENSES_EXCEED_IRS_STANDARDS'))")
+check "EXPENSES_EXCEED_IRS_STANDARDS flag present in case_tight" "$([ "$HAS_EXP_A" = "true" ] && echo PASS || echo FAIL)"
 
 rm -rf "$TMP_A1"
 echo ""
@@ -261,6 +263,100 @@ check "Wrapper output contains PORT1_OK" "$(echo "$OUTPUT_E" | grep -q PORT1_OK 
 check "Wrapper creates payment_plan_model.json" "$([ -f "$TMP_E/payment_plan_model.json" ] && echo PASS || echo FAIL)"
 check "Wrapper creates financial_docs_needed.md" "$([ -f "$TMP_E/financial_docs_needed.md" ] && echo PASS || echo FAIL)"
 rm -rf "$TMP_E"
+echo ""
+
+# ══════════════════════════════════════════════
+# SUITE F: IRS Collection Standards (Phase 1A)
+# ══════════════════════════════════════════════
+echo "━━━ Suite F: IRS Collection Standards ━━━"
+echo ""
+
+echo "--- Test F1: IRS allowable expenses - case_tight ---"
+TMP_F=$(mktemp -d)
+node "$MODEL_BUILDER" \
+  --case case_tight \
+  --bundle "$FIX_DIR/bundle" \
+  --intake "$FIX_DIR/intake/financial_intake.json" \
+  --out "$TMP_F" \
+  --as-of-utc 20260220T000000Z >/dev/null 2>&1
+
+check "irs_allowable_expenses section exists" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses ? 'PASS' : 'FAIL')")"
+check "national_standard is 785 (household_size 1)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.national_standard === 785 ? 'PASS' : 'FAIL')")"
+check "transportation_ownership is 522 (1 vehicle)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.transportation_ownership === 522 ? 'PASS' : 'FAIL')")"
+check "transportation_operating is 277 (1 vehicle)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.transportation_operating === 277 ? 'PASS' : 'FAIL')")"
+check "health_care is 75 (under 65)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.health_care === 75 ? 'PASS' : 'FAIL')")"
+check "total_irs_allowable is 1659" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.total_irs_allowable === 1659 ? 'PASS' : 'FAIL')")"
+check "variance is 1076 (2735 - 1659)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.variance === 1076 ? 'PASS' : 'FAIL')")"
+check "household_size_used is 1" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.household_size_used === 1 ? 'PASS' : 'FAIL')")"
+check "vehicles_used is 1" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.vehicles_used === 1 ? 'PASS' : 'FAIL')")"
+check "taxpayer_age_65_plus is false" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.taxpayer_age_65_plus === false ? 'PASS' : 'FAIL')")"
+check "variance_note is a non-empty string" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(typeof m.irs_allowable_expenses.variance_note === 'string' && m.irs_allowable_expenses.variance_note.length > 0 ? 'PASS' : 'FAIL')")"
+check "EXPENSES_EXCEED_IRS_STANDARDS risk flag set (variance > 500)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F/payment_plan_model.json','utf8')); console.log(m.risk_flags.includes('EXPENSES_EXCEED_IRS_STANDARDS') ? 'PASS' : 'FAIL')")"
+
+echo ""
+echo "--- Test F2: IRS allowable expenses - case_stressed (household_size 2) ---"
+TMP_F2=$(mktemp -d)
+node "$MODEL_BUILDER" \
+  --case case_stressed \
+  --bundle "$FIX_DIR_S/bundle" \
+  --intake "$FIX_DIR_S/intake/financial_intake.json" \
+  --out "$TMP_F2" \
+  --as-of-utc 20260220T000000Z >/dev/null 2>&1
+
+check "national_standard is 1410 (household_size 2)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F2/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.national_standard === 1410 ? 'PASS' : 'FAIL')")"
+check "total_irs_allowable is 2284 (stressed)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F2/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.total_irs_allowable === 2284 ? 'PASS' : 'FAIL')")"
+check "self_reported_essential_expenses matches total_monthly_expenses" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F2/payment_plan_model.json','utf8')); console.log(m.irs_allowable_expenses.self_reported_essential_expenses === m.intake_summary.total_monthly_expenses ? 'PASS' : 'FAIL')")"
+check "EXPENSES_EXCEED_IRS_STANDARDS flag also set in case_stressed" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_F2/payment_plan_model.json','utf8')); console.log(m.risk_flags.includes('EXPENSES_EXCEED_IRS_STANDARDS') ? 'PASS' : 'FAIL')")"
+
+rm -rf "$TMP_F" "$TMP_F2"
+echo ""
+
+# ══════════════════════════════════════════════
+# SUITE G: CSED Tracking (Phase 1B)
+# ══════════════════════════════════════════════
+echo "━━━ Suite G: CSED Tracking ━━━"
+echo ""
+
+echo "--- Test G1: CSED analysis - case_tight (has assessment_dates) ---"
+TMP_G=$(mktemp -d)
+node "$MODEL_BUILDER" \
+  --case case_tight \
+  --bundle "$FIX_DIR/bundle" \
+  --intake "$FIX_DIR/intake/financial_intake.json" \
+  --out "$TMP_G" \
+  --as-of-utc 20260220T000000Z >/dev/null 2>&1
+
+check "csed_analysis section exists" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis ? 'PASS' : 'FAIL')")"
+check "csed_analysis.computed is true for case_tight" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.computed === true ? 'PASS' : 'FAIL')")"
+check "csed tax_years has 1 entry" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(Array.isArray(m.csed_analysis.tax_years) && m.csed_analysis.tax_years.length === 1 ? 'PASS' : 'FAIL')")"
+check "csed tax_years[0].year is 2022" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.tax_years[0].year === 2022 ? 'PASS' : 'FAIL')")"
+check "csed tax_years[0].assessment_date is 20221015" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.tax_years[0].assessment_date === '20221015' ? 'PASS' : 'FAIL')")"
+check "csed_expires_utc is 20321015 (10 years later)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.tax_years[0].csed_expires_utc === '20321015' ? 'PASS' : 'FAIL')")"
+check "csed_days_remaining is positive integer" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); const d=m.csed_analysis.tax_years[0].csed_days_remaining; console.log(Number.isInteger(d) && d > 0 ? 'PASS' : 'FAIL')")"
+check "csed_days_remaining is 2429" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.tax_years[0].csed_days_remaining === 2429 ? 'PASS' : 'FAIL')")"
+check "csed_expired is false" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.tax_years[0].csed_expired === false ? 'PASS' : 'FAIL')")"
+check "any_near_expiry is false (2429 days > 730 threshold)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.any_near_expiry === false ? 'PASS' : 'FAIL')")"
+check "any_expired is false" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.any_expired === false ? 'PASS' : 'FAIL')")"
+check "near_expiry_threshold_days is 730" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.near_expiry_threshold_days === 730 ? 'PASS' : 'FAIL')")"
+check "earliest_expiry_utc is 20321015" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(m.csed_analysis.earliest_expiry_utc === '20321015' ? 'PASS' : 'FAIL')")"
+check "collection_window_note is a non-empty string" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(typeof m.csed_analysis.collection_window_note === 'string' && m.csed_analysis.collection_window_note.length > 0 ? 'PASS' : 'FAIL')")"
+check "CSED_NEAR_EXPIRY flag NOT set (not near expiry)" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(!m.risk_flags.includes('CSED_NEAR_EXPIRY') ? 'PASS' : 'FAIL')")"
+check "CSED_EXPIRED flag NOT set" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G/payment_plan_model.json','utf8')); console.log(!m.risk_flags.includes('CSED_EXPIRED') ? 'PASS' : 'FAIL')")"
+
+echo ""
+echo "--- Test G2: CSED analysis - case_stressed (no assessment_dates) ---"
+TMP_G2=$(mktemp -d)
+node "$MODEL_BUILDER" \
+  --case case_stressed \
+  --bundle "$FIX_DIR_S/bundle" \
+  --intake "$FIX_DIR_S/intake/financial_intake.json" \
+  --out "$TMP_G2" \
+  --as-of-utc 20260220T000000Z >/dev/null 2>&1
+
+check "csed_analysis.computed is false when no assessment_dates" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G2/payment_plan_model.json','utf8')); console.log(m.csed_analysis.computed === false ? 'PASS' : 'FAIL')")"
+check "csed_analysis.reason provided when not computed" "$(node -e "const m=JSON.parse(require('fs').readFileSync('$TMP_G2/payment_plan_model.json','utf8')); console.log(typeof m.csed_analysis.reason === 'string' && m.csed_analysis.reason.length > 0 ? 'PASS' : 'FAIL')")"
+
+rm -rf "$TMP_G" "$TMP_G2"
 echo ""
 
 # ══════════════════════════════════════════════

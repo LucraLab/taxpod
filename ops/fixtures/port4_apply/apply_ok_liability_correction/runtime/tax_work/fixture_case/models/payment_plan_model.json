@@ -1,0 +1,83 @@
+{
+  "version": "PaymentPlanModelV1",
+  "case_id": "fixture_case",
+  "as_of_utc": "20260222T000000Z",
+  "liability_summary": {
+    "tax_years": [
+      {
+        "year": 2022,
+        "tax_owed": 5000,
+        "penalty": 400,
+        "interest": 250,
+        "total_liability": 5650,
+        "filing_status": "single",
+        "agi": 72000,
+        "wages": 72000,
+        "withholding": 11000,
+        "flags": [],
+        "sources": [
+          "FCT-FC01"
+        ]
+      }
+    ],
+    "total_tax_owed": 5000,
+    "total_penalty": 400,
+    "total_interest": 250,
+    "total_liability": 5650
+  },
+  "intake_summary": {
+    "total_monthly_income": 5000,
+    "total_monthly_expenses": 2800,
+    "total_monthly_debt_payments": 400,
+    "dependents": 0,
+    "total_assets": 8000,
+    "income_source_count": 1,
+    "has_self_employment": false
+  },
+  "monthly_capacity": {
+    "net_income_monthly": 5000,
+    "essential_expenses_monthly": 2800,
+    "debt_payments_monthly": 400,
+    "estimated_disposable_monthly": 1800,
+    "capacity_best": 1980,
+    "capacity_likely": 1800,
+    "capacity_worst": 1620
+  },
+  "irs_allowable_expenses": {
+    "national_standard": 785,
+    "transportation_ownership": 0,
+    "transportation_operating": 0,
+    "health_care": 75,
+    "total_irs_allowable": 860,
+    "self_reported_essential_expenses": 2800,
+    "variance": 1940,
+    "variance_note": "Self-reported expenses exceed IRS national standard by $1940.00/month. IRS may only allow $860.00/month in installment agreement or OIC calculations.",
+    "household_size_used": 1,
+    "vehicles_used": 0,
+    "taxpayer_age_65_plus": false
+  },
+  "csed_analysis": {
+    "computed": false,
+    "reason": "No assessment dates provided in liability snapshot."
+  },
+  "risk_flags": [
+    "EXPENSES_EXCEED_IRS_STANDARDS"
+  ],
+  "assumptions": [
+    "Income and expenses as reported by taxpayer on intake form",
+    "Sensitivity range: best +10%, worst -10% of disposable",
+    "No adjustment for seasonality or future income changes",
+    "Liability totals from TaxVault as of bundle export date"
+  ],
+  "derived": {
+    "expense_breakdown": {
+      "housing": 1500,
+      "insurance_medical": 300,
+      "other_essential": 750,
+      "transportation": 250
+    },
+    "income_breakdown": {
+      "employment": 5000
+    }
+  }
+}

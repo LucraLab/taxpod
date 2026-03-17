@@ -1,0 +1,28 @@
+{
+  "version": "IRS_COLLECTION_STANDARDS_2025",
+  "effective_date": "20250421",
+  "expires": "20260601",
+  "source": "https://www.irs.gov/businesses/small-businesses-self-employed/national-standards-food-clothing-and-other-items",
+  "national_standards": {
+    "household_size_1": 785,
+    "household_size_2": 1410,
+    "household_size_3": 1610,
+    "household_size_4": 1910,
+    "additional_person": 335
+  },
+  "transportation_ownership": {
+    "vehicles_0": 0,
+    "vehicles_1": 522,
+    "vehicles_2": 1044
+  },
+  "transportation_operating": {
+    "vehicles_0": 0,
+    "vehicles_1": 277,
+    "vehicles_2": 554
+  },
+  "health_care": {
+    "under_65": 75,
+    "age_65_plus": 153
+  },
+  "notes": "Local housing and utility standards vary by state and county. See IRS website for current local standards. These national standards are the maximum IRS will allow; taxpayer may claim less."
+}

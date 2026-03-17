@@ -59,7 +59,40 @@
     "capacity_likely": 935,
     "capacity_worst": 841.5
   },
-  "risk_flags": [],
+  "irs_allowable_expenses": {
+    "national_standard": 785,
+    "transportation_ownership": 522,
+    "transportation_operating": 277,
+    "health_care": 75,
+    "total_irs_allowable": 1659,
+    "self_reported_essential_expenses": 2735,
+    "variance": 1076,
+    "variance_note": "Self-reported expenses exceed IRS national standard by $1076.00/month. IRS may only allow $1659.00/month in installment agreement or OIC calculations.",
+    "household_size_used": 1,
+    "vehicles_used": 1,
+    "taxpayer_age_65_plus": false
+  },
+  "csed_analysis": {
+    "computed": true,
+    "as_of_utc": "20260220T000000Z",
+    "tax_years": [
+      {
+        "year": 2022,
+        "assessment_date": "20221015",
+        "csed_expires_utc": "20321015",
+        "csed_days_remaining": 2429,
+        "csed_expired": false
+      }
+    ],
+    "earliest_expiry_utc": "20321015",
+    "any_near_expiry": false,
+    "near_expiry_threshold_days": 730,
+    "any_expired": false,
+    "collection_window_note": "IRS has until 20321015 to collect the earliest-assessed year."
+  },
+  "risk_flags": [
+    "EXPENSES_EXCEED_IRS_STANDARDS"
+  ],
   "assumptions": [
     "Income and expenses as reported by taxpayer on intake form",
     "Sensitivity range: best +10%, worst -10% of disposable",

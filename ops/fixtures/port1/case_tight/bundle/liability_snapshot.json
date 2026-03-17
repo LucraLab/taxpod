@@ -28,6 +28,13 @@
       "sources": ["FCT-003"]
     }
   ],
+  "assessment_dates": [
+    {
+      "year": 2022,
+      "assessment_date": "20221015",
+      "notes": "Original return filed with extension"
+    }
+  ],
   "generated_utc": "20260220T000000Z",
   "vault_version": "13.2.0"
 }
