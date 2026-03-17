@@ -160,6 +160,82 @@ Deterministic markdown checklist. Sections always in this order:
 - Each item: `- [ ] Item description`
 - Footer: generation timestamp and model version
 
+## New Fields (Phase 1 Expansion)
+
+### irs_allowable_expenses (Phase 1A)
+IRS Collection Financial Standards comparison. Added when intake includes `household_size` and `vehicles`.
+
+```json
+{
+  "national_standard": 785.00,
+  "transportation_ownership": 522.00,
+  "transportation_operating": 277.00,
+  "health_care": 75.00,
+  "total_irs_allowable": 1659.00,
+  "self_reported_essential_expenses": 2735.00,
+  "variance": 1076.00,
+  "variance_note": "Self-reported expenses exceed IRS national standard by $1076.00/month...",
+  "household_size_used": 1,
+  "vehicles_used": 1,
+  "taxpayer_age_65_plus": false
+}
+```
+
+Optional intake fields: `household_size` (integer ≥1, default 1), `vehicles` (integer 0–2, default 0), `taxpayer_age_65_plus` (boolean, default false).
+
+Risk flag added when `variance > $500/month`: `EXPENSES_EXCEED_IRS_STANDARDS`
+
+Data source: `ops/data/irs_collection_standards_2025.json` (IRS effective April 21, 2025).
+
+### csed_analysis (Phase 1B)
+Collection Statute Expiration Date tracking. Added when `liability_snapshot.json` includes `assessment_dates`.
+
+```json
+{
+  "computed": true,
+  "as_of_utc": "20260220T000000Z",
+  "tax_years": [
+    {
+      "year": 2022,
+      "assessment_date": "20221015",
+      "csed_expires_utc": "20321015",
+      "csed_expires_readable": "2032-10-15",
+      "csed_days_remaining": 2429,
+      "csed_expired": false
+    }
+  ],
+  "earliest_expiry_utc": "20321015",
+  "any_near_expiry": false,
+  "near_expiry_threshold_days": 730,
+  "any_expired": false,
+  "collection_window_note": "IRS has until 2032-10-15 to collect the earliest-assessed year."
+}
+```
+
+If no `assessment_dates` provided: `{ "computed": false, "reason": "No assessment dates provided in liability snapshot." }`
+
+Risk flags: `CSED_NEAR_EXPIRY` (any year < 730 days to expiry), `CSED_EXPIRED` (any year past expiry).
+
+Add `assessment_dates` to `liability_snapshot.json`:
+```json
+{ "assessment_dates": [{ "year": 2022, "assessment_date": "20221015" }] }
+```
+
+### relief_opportunities (Phase 1C)
+First Time Penalty Abatement eligibility. Always present.
+
+```json
+{
+  "fta_eligible": true,
+  "fta_clean_years": 3,
+  "fta_note": "Taxpayer has 3+ years of clean compliance..."
+}
+```
+
+Add to intake to enable: `"prior_compliance": { "clean_filing_years": 3 }`
+
+If not provided: `fta_eligible: false`, `fta_clean_years: null`, note says "FTA eligibility unknown".
+
 ## Exit Codes
 | Code | Meaning |
 |------|---------|

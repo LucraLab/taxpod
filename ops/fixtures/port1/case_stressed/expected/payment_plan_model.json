@@ -92,8 +92,8 @@
   ],
   "relief_opportunities": {
     "fta_eligible": false,
-    "fta_note": "prior_compliance not provided in intake.",
-    "fta_clean_years": 0
+    "fta_clean_years": null,
+    "fta_note": "FTA eligibility unknown — add prior_compliance.clean_filing_years to intake to check."
   },
   "derived": {
     "expense_breakdown": {

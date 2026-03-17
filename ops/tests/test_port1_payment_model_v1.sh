@@ -1,6 +1,6 @@
 #!/bin/bash
 # test_port1_payment_model_v1.sh — Regression test for PORT1 payment capacity model
-# Location: ops/taxpod/tests/test_port1_payment_model_v1.sh
+# Location: ops/tests/test_port1_payment_model_v1.sh
 #
 # Runs model builder + docs renderer against fixtures, compares to expected output.
 # No network calls. No external test framework.

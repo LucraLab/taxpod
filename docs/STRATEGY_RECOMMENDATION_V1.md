@@ -52,6 +52,7 @@ Path: `<MODEL_DIR>/payment_plan_model.json`
 | `SHORT_TERM_PAYMENT_PLAN` | Full payoff in <= 6 months |
 | `LONG_TERM_INSTALLMENT_AGREEMENT` | Full payoff in 7-72 months |
 | `PARTIAL_PAYMENT_INSTALLMENT_AGREEMENT` | Payoff exceeds 72 months; requires CPA negotiation |
+| `OFFER_IN_COMPROMISE` | Total liability exceeds RCP by 10%+; CPA/EA required for Form 656 |
 | `CPA_ESCALATION_REQUIRED` | Cannot determine strategy; missing data or hard flags |
 
 ## Decision Constants
@@ -127,6 +128,42 @@ Same as PORT1:
 | 1 | Input error |
 | 2 | Computation error (NaN) |
 | 3 | Output already exists |
+
+## OIC Strategy (Phase 1D)
+
+When `model.intake_summary.total_assets` is available and the case doesn't escalate, the recommender computes a Reasonable Collection Potential (RCP):
+
+```
+quick_sale_assets = total_assets × 0.80
+income_component  = capacity_likely × 12  (lump-sum default)
+rcp               = income_component + quick_sale_assets
+```
+
+If `total_liability > rcp × 1.10` → strategy is `OFFER_IN_COMPROMISE`.
+
+Output includes `rcp_analysis`:
+```json
+{
+  "rcp_analysis": {
+    "monthly_capacity_likely": 600,
+    "collection_months_used": 12,
+    "income_component": 7200,
+    "quick_sale_assets": 4000,
+    "rcp": 11200,
+    "total_liability": 80000,
+    "oic_indicated": true,
+    "settlement_floor": 11200,
+    "notes": "IRS may accept settlement of approximately $11,200.00. CPA/EA required to prepare Form 656."
+  }
+}
+```
+
+## FTA Relief Opportunities (Phase 1C)
+
+When `model.relief_opportunities.fta_eligible` is true, PORT2 adds:
+- FTA call-script question to `execution.call_script_questions`
+- FTA bullet to `strategy.why_this_strategy`
+- `relief_opportunities` block passed through to strategy output
 
 ## Disclaimer
 All outputs include: "This is a planning estimate based on reported data. Confirm all figures and strategy with a licensed CPA or Enrolled Agent before contacting the IRS."

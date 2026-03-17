@@ -73,12 +73,20 @@ function parseAsOfUtc(s) {
   return parseYmd(s.slice(0, 8));
 }
 
-// Format a UTC Date as YYYYMMDD
+// Format a UTC Date as YYYYMMDD (internal compact format, matches existing UTC strings)
 function formatYmd(date) {
   const y = date.getUTCFullYear().toString().padStart(4, '0');
   const m = (date.getUTCMonth() + 1).toString().padStart(2, '0');
   const d = date.getUTCDate().toString().padStart(2, '0');
   return `${y}${m}${d}`;
+}
+
+// Format a UTC Date as YYYY-MM-DD (human-readable)
+function formatYmdReadable(date) {
+  const y = date.getUTCFullYear().toString().padStart(4, '0');
+  const m = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+  const d = date.getUTCDate().toString().padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 // ── Validation ──
@@ -365,13 +373,16 @@ function main() {
         assessDate.getUTCDate()
       ));
       const expiryStr = formatYmd(expiryDate);
+      const expiryReadable = formatYmdReadable(expiryDate);
       const daysRemaining = Math.floor((expiryDate - asOfDate) / (1000 * 60 * 60 * 24));
       return {
         year: ad.year,
         assessment_date: ad.assessment_date,
         csed_expires_utc: expiryStr,
+        csed_expires_readable: expiryReadable,
         csed_days_remaining: daysRemaining,
-        csed_expired: daysRemaining <= 0
+        csed_expired: daysRemaining <= 0,
+        _expiryDate: expiryDate
       };
     });
 
@@ -386,6 +397,10 @@ function main() {
     );
     const anyExpired = taxYearsCsed.some(y => y.csed_expired);
 
+    // Capture human-readable date before stripping internal helper field
+    const earliestExpiryReadable = formatYmdReadable(sorted[0]._expiryDate);
+    taxYearsCsed.forEach(y => delete y._expiryDate);
+
     csedAnalysis = {
       computed: true,
       as_of_utc: asOfUtc,
@@ -394,7 +409,7 @@ function main() {
       any_near_expiry: anyNearExpiry,
       near_expiry_threshold_days: nearThreshold,
       any_expired: anyExpired,
-      collection_window_note: `IRS has until ${earliestExpiry} to collect the earliest-assessed year.`
+      collection_window_note: `IRS has until ${earliestExpiryReadable} to collect the earliest-assessed year.`
     };
 
     // CSED risk flags added below after base flags
@@ -436,16 +451,25 @@ function main() {
 
   // ── Relief opportunities (FTA) ──
   const priorCompliance = intake.prior_compliance || null;
-  const cleanFilingYears = (priorCompliance && typeof priorCompliance.clean_filing_years === 'number')
+  const cleanFilingYearsRaw = (priorCompliance && typeof priorCompliance.clean_filing_years === 'number')
     ? priorCompliance.clean_filing_years
-    : 0;
+    : null;
+  const cleanFilingYears = cleanFilingYearsRaw !== null ? cleanFilingYearsRaw : 0;
   const ftaEligible = cleanFilingYears >= 3;
+
+  let ftaNote;
+  if (ftaEligible) {
+    ftaNote = 'Taxpayer has 3+ years of clean compliance. Eligible to request First Time Penalty Abatement for failure-to-file and failure-to-pay penalties. This could significantly reduce total liability.';
+  } else if (cleanFilingYearsRaw === null) {
+    ftaNote = 'FTA eligibility unknown — add prior_compliance.clean_filing_years to intake to check.';
+  } else {
+    ftaNote = `Not eligible: ${cleanFilingYears} year(s) clean compliance on file (3 required for FTA).`;
+  }
+
   const reliefOpportunities = {
     fta_eligible: ftaEligible,
-    fta_note: ftaEligible
-      ? 'Taxpayer has 3+ years of clean compliance. Eligible to request First Time Penalty Abatement for failure-to-file and failure-to-pay penalties. This could significantly reduce total liability.'
-      : 'prior_compliance not provided in intake.',
-    fta_clean_years: cleanFilingYears
+    fta_clean_years: cleanFilingYearsRaw,
+    fta_note: ftaNote
   };
 
   // ── Build model ──

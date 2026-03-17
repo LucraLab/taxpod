@@ -1,6 +1,6 @@
 #!/bin/bash
 # test_export_bundle_v1.sh — Regression test for PaymentPlanBundleV1 exporter
-# Location: ops/taxpod/tests/test_export_bundle_v1.sh
+# Location: ops/tests/test_export_bundle_v1.sh
 #
 # Runs exporter against fixtures, compares to expected output.
 # No network calls. No external test framework.

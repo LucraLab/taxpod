@@ -79,5 +79,10 @@
     "income_breakdown": {
       "employment": 5000
     }
+  },
+  "relief_opportunities": {
+    "fta_eligible": false,
+    "fta_clean_years": null,
+    "fta_note": "FTA eligibility unknown — add prior_compliance.clean_filing_years to intake to check."
   }
 }

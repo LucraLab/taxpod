@@ -1,6 +1,6 @@
 #!/bin/bash
 # test_port3_cpa_package_v1.sh — Regression test for PORT3 CPA package builder
-# Location: ops/taxpod/tests/test_port3_cpa_package_v1.sh
+# Location: ops/tests/test_port3_cpa_package_v1.sh
 #
 # Runs package builder against fixtures, compares to expected output.
 # No network calls. No external test framework.

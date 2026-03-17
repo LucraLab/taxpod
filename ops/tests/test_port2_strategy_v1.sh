@@ -1,6 +1,6 @@
 #!/bin/bash
 # test_port2_strategy_v1.sh — Regression test for PORT2 strategy recommender
-# Location: ops/taxpod/tests/test_port2_strategy_v1.sh
+# Location: ops/tests/test_port2_strategy_v1.sh
 #
 # Runs strategy recommender + report renderer against fixtures, compares to expected output.
 # No network calls. No external test framework.

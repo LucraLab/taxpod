@@ -80,6 +80,7 @@
         "year": 2022,
         "assessment_date": "20221015",
         "csed_expires_utc": "20321015",
+        "csed_expires_readable": "2032-10-15",
         "csed_days_remaining": 2429,
         "csed_expired": false
       }
@@ -88,7 +89,7 @@
     "any_near_expiry": false,
     "near_expiry_threshold_days": 730,
     "any_expired": false,
-    "collection_window_note": "IRS has until 20321015 to collect the earliest-assessed year."
+    "collection_window_note": "IRS has until 2032-10-15 to collect the earliest-assessed year."
   },
   "risk_flags": [
     "EXPENSES_EXCEED_IRS_STANDARDS"
@@ -101,8 +102,8 @@
   ],
   "relief_opportunities": {
     "fta_eligible": false,
-    "fta_note": "prior_compliance not provided in intake.",
-    "fta_clean_years": 0
+    "fta_clean_years": null,
+    "fta_note": "FTA eligibility unknown — add prior_compliance.clean_filing_years to intake to check."
   },
   "derived": {
     "expense_breakdown": {
