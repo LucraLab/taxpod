@@ -1,21 +1,23 @@
 # TaxPod Knowledge Module
 
-> **Version:** Phase 2A + 2D + 3A  
-> **Purpose:** Structured IRS reference documentation for the TaxPod resolution pipeline agent  
-> **Scope:** Federal tax collection, resolution alternatives, taxpayer rights, and live rate data
+> **Version:** Phase 2A + 2B + 2C + 2D + 3A  
+> **Purpose:** Structured IRS reference documentation for the TaxPod resolution pipeline  
+> **Scope:** Federal tax collection, resolution alternatives, taxpayer rights, rental property, small business
 
 ---
 
 ## What This Is
 
-The `tax_knowledge/` directory is a structured reference library for the TaxPod AI agent. It contains:
+The `tax_knowledge/` directory is a structured reference library. It contains:
 
 - **Accurate, scannable summaries** of key IRS publications
 - **Deep-dive resolution guides** covering all IRS collection alternatives
-- **Strategy frameworks** (CSED analysis, penalty abatement scripts)
-- **Cross-references** between documents for quick navigation
+- **Rental property rules** — depreciation, passive activity, Schedule E, 1031 exchanges
+- **Small business rules** — QBI, S-corp, Section 179, SE tax strategy
+- **Strategy frameworks** (CSED analysis, penalty abatement scripts, OIC calculation)
+- **Live rate data** — current IRS fees and interest rates
 
-These are **reference documents**, not pipeline code. They inform agent reasoning and can be cited in client-facing outputs.
+These are **reference documents**, not pipeline code.
 
 ---
 
@@ -30,114 +32,95 @@ tax_knowledge/
 │   ├── pub_594_collection_process.md  ← Collection timeline, liens, levies
 │   └── pub_971_innocent_spouse.md     ← Innocent spouse relief (awareness only)
 │
-└── resolution/                        ← Collection Alternatives Deep Dives
-    ├── collection_alternatives.md     ← All 6 resolution pathways (full detail)
-    ├── csed_deep_dive.md              ← CSED strategy by time horizon
-    └── penalty_abatement_guide.md    ← FTA eligibility, calculation, call script
+├── resolution/                        ← IRS Debt Resolution Deep Dives
+│   ├── collection_alternatives.md     ← All 6 resolution pathways (full detail)
+│   ├── csed_deep_dive.md              ← CSED strategy by time horizon
+│   └── penalty_abatement_guide.md    ← FTA eligibility, calculation, call script
+│
+├── rental/                            ← Rental Property Tax Rules (Pub 527)
+│   ├── rental_property_overview.md   ← Income rules, 14-day rule, vacation homes
+│   ├── deductible_expenses.md        ← All deductible expenses + repairs vs improvements
+│   ├── depreciation.md               ← 27.5-year depreciation, bonus, Section 179
+│   ├── passive_activity_rules.md     ← PAL rules, $25k exception, real estate pro
+│   ├── 1031_exchange.md              ← Like-kind exchange rules and strategy
+│   └── schedule_e_guide.md          ← How to complete Schedule E
+│
+└── business/                          ← Small Business / LucraLab Rules
+    ├── small_business_overview.md    ← Entity types, S-corp vs LLC vs sole prop
+    ├── qbi_deduction.md              ← Section 199A, 20% deduction, phase-outs
+    ├── business_expenses.md          ← Section 162, all deductible categories
+    ├── section_179_bonus_depreciation.md ← Equipment write-offs, MACRS
+    └── se_tax_planning.md            ← SE tax rates, S-corp strategy, SEP-IRA
 ```
 
 ---
 
-## How to Use This Module
+## How to Use
 
-### For the TaxPod Agent
+### For IRS Resolution Cases
+1. **Start with `collection_alternatives.md`** — all viable resolution paths
+2. **Always run CSED check** — `csed_deep_dive.md` — time horizon changes everything
+3. **Check FTA first** — `penalty_abatement_guide.md` — low effort, high reward
+4. **Taxpayer rights questions** — `pub_1_taxpayer_rights.md`
 
-When advising on a client case:
+### For Rental Property Questions
+1. `rental_property_overview.md` — income classification, 14-day rule
+2. `passive_activity_rules.md` — critical for loss deductibility ($25k exception)
+3. `depreciation.md` — biggest deduction, depreciation recapture at sale
+4. `1031_exchange.md` — capital gains deferral strategy
 
-1. **Start with `collection_alternatives.md`** — determines which resolution paths are viable
-2. **Always run CSED analysis** — check `csed_deep_dive.md` for time-horizon strategy before recommending IA or OIC
-3. **Check penalty abatement first** — `penalty_abatement_guide.md` — FTA is low-effort, high-reward
-4. **Reference publication docs** for taxpayer rights questions or innocent spouse flags
-
-### For Human Reviewers
-
-- All documents include citations to IRS publications and IRC sections
-- Fees and rates are current as of Q1 2026 — verify quarterly
-- Live rates are stored in `ops/data/irs_current_rates.json` (see below)
+### For LucraLab / Business Tax
+1. `small_business_overview.md` — entity type determines tax treatment
+2. `se_tax_planning.md` — S-corp strategy, SE tax savings calculation
+3. `qbi_deduction.md` — 20% pass-through deduction eligibility
+4. `business_expenses.md` — what's deductible and how
 
 ---
 
 ## Live Rate Data
 
-Current IRS rates are stored in:
-
-```
-ops/data/irs_current_rates.json
-```
-
-This file includes:
-- Current underpayment interest rate (quarterly)
-- Collection Financial Standards effective dates
-- OIC application fees
-- Installment Agreement setup fees
-
-### Keeping It Current
-
-Run the fetch script **quarterly** (when IRS announces new rates):
+Current IRS rates stored in `ops/data/irs_current_rates.json`. Run **quarterly**:
 
 ```bash
 bash ops/scripts/run_fetch_irs_rates.sh
 ```
 
-The script attempts to fetch live data via web search and falls back to hardcoded values if unavailable.
-
-**IRS announces rates for each quarter.** Typical announcement schedule:
-- Q1 (Jan–Mar): Announced November/December
-- Q2 (Apr–Jun): Announced February/March
-- Q3 (Jul–Sep): Announced May/June
-- Q4 (Oct–Dec): Announced August/September
-
-**Authoritative sources to verify:**
-- Underpayment rate: [IRS Interest Rates](https://www.irs.gov/payments/quarterly-interest-rates)
-- Collection Financial Standards: [IRS Collection Standards](https://www.irs.gov/businesses/small-businesses-self-employed/collection-financial-standards)
-- OIC fees: [IRS OIC page](https://www.irs.gov/payments/offer-in-compromise)
+Includes: underpayment interest rate, OIC application fee, IA setup fees, Collection Standards effective dates.
 
 ---
 
-## What's NOT in This Module
+## What's NOT Covered
 
-This knowledge module covers federal tax collection resolution only. It does **not** cover:
-
-- **State taxes** — Each state has its own collection process, statutes, and resolution programs. California FTB, NY DTF, IL DOR, etc. are entirely separate.
-- **Court decisions and case law** — Tax Court opinions, Circuit Court decisions, and evolving case law are not tracked here.
-- **Estate and gift taxes** — Different rules, forms, and collection timelines.
-- **Payroll tax trust fund recovery** — IRC §6672 TFRP has unique rules; not covered.
-- **Foreign bank account reporting (FBAR/FATCA)** — Separate FinCEN and IRS reporting regimes.
-- **International tax** — Treaties, GILTI, PFIC, etc.
-- **Advanced tax planning** — Tax minimization, entity structuring, retirement planning.
-- **Criminal tax matters** — Tax evasion, fraud referrals, grand jury matters. These require specialized criminal tax attorneys.
-- **Bankruptcy law** — Chapter 7/13 analysis requires a licensed bankruptcy attorney. The `collection_alternatives.md` file notes tax implications only.
+- State taxes (CA FTB, WA DOR, NC, etc.)
+- Court decisions and evolving case law
+- Payroll trust fund recovery (§6672 TFRP)
+- Foreign accounts (FBAR/FATCA)
+- Criminal tax matters
+- Bankruptcy law (referenced in collection_alternatives.md only)
+- Estate and gift taxes
 
 ---
 
-## Document Maintenance
+## Sources
 
-| Document | Update Trigger | Frequency |
-|----------|---------------|-----------|
-| `pub_594_collection_process.md` | IRS updates Pub 594 | Annually |
-| `pub_971_innocent_spouse.md` | IRS updates Pub 971 | As needed |
-| `pub_1_taxpayer_rights.md` | TBOR changes (rare) | As needed |
-| `collection_alternatives.md` | Fee changes, threshold changes | Quarterly |
-| `csed_deep_dive.md` | Law changes (rare) | As needed |
-| `penalty_abatement_guide.md` | Policy changes | As needed |
-| `ops/data/irs_current_rates.json` | Quarterly rate announcements | **Quarterly** |
+- IRS Pub 1 (Taxpayer Rights), Pub 527 (Rental), Pub 535 (Business Expenses), Pub 594 (Collection), Pub 971 (Innocent Spouse), Pub 946 (Depreciation)
+- IRC §162, §168, §179, §199A, §469, §1031, §1250
+- IRS Collection Financial Standards (April 2025)
 
 ---
 
-## Key IRS Resources
+## Document Update Cadence
 
-| Resource | URL / Phone |
-|----------|------------|
-| IRS main site | irs.gov |
-| General taxpayer phone | 1-800-829-1040 |
-| Business tax phone | 1-800-829-4933 |
-| Taxpayer Advocate Service | 1-877-777-4778 |
-| Online Payment Agreement | irs.gov/OPA |
-| Get Transcripts | irs.gov/transcript |
-| Pub 594 (Collection Process) | irs.gov/pub/irs-pdf/p594.pdf |
-| Pub 971 (Innocent Spouse) | irs.gov/pub/irs-pdf/p971.pdf |
-| Pub 1 (Taxpayer Rights) | irs.gov/pub/irs-pdf/p1.pdf |
+| Document | Update Trigger |
+|----------|----------------|
+| `collection_alternatives.md` | Fee changes, threshold changes — quarterly |
+| `csed_deep_dive.md` | Law changes — as needed |
+| `penalty_abatement_guide.md` | Policy changes — as needed |
+| `depreciation.md` | Bonus depreciation % changes annually |
+| `qbi_deduction.md` | Income threshold inflation adjustments — annually |
+| `se_tax_planning.md` | SS wage base changes annually |
+| `ops/data/irs_current_rates.json` | **Quarterly** — run fetch script |
 
 ---
 
-*This knowledge module is maintained as part of TaxPod — an IRS debt resolution pipeline. Content is for informational purposes and should be verified against current IRS guidance before use in formal client communications.*
+*TaxPod — IRS debt resolution pipeline. Content is for informational purposes and should be verified against current IRS guidance before use in formal documents.*
