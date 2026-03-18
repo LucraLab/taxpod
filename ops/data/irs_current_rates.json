@@ -1,0 +1,15 @@
+{
+  "version": "IrsCurrentRatesV1",
+  "source": "hardcoded-fallback (web search unavailable)",
+  "underpayment_rate_pct": 7,
+  "underpayment_rate_quarter": "Q1 2026",
+  "collection_standards_effective": "20250421",
+  "collection_standards_expires": "20260601",
+  "oic_application_fee": 205,
+  "installment_setup_fee_online_dd": 31,
+  "installment_setup_fee_online_other": 107,
+  "installment_setup_fee_offline": 225,
+  "installment_setup_fee_low_income": 43,
+  "notes": "Web search unavailable — using hardcoded fallback values. Verify quarterly at IRS.gov.",
+  "fetched_utc": "2026-03-18T01:43:36.420Z"
+}
