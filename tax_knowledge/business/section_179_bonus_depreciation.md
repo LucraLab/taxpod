@@ -21,14 +21,21 @@ These two methods are often used **in combination** to maximize first-year deduc
 
 Section 179 allows businesses to **expense** (deduct in full immediately) the cost of qualifying property placed in service during the tax year, rather than depreciating it over multiple years.
 
-### 2024 Limits
+### 2025 Limits
+
+| Item | Amount |
+|---|---|
+| Maximum Section 179 deduction | **$1,250,000** |
+| Phase-out threshold (assets placed in service) | $3,130,000 |
+| Phase-out: dollar-for-dollar above threshold | — |
+| Dollar limit fully eliminated when assets exceed | $4,380,000 |
+
+### 2024 Limits (for reference)
 
 | Item | Amount |
 |---|---|
 | Maximum Section 179 deduction | **$1,220,000** |
-| Phase-out threshold (assets placed in service) | $3,050,000 |
-| Phase-out: dollar-for-dollar above threshold | — |
-| Dollar limit fully eliminated when assets exceed | $4,270,000 |
+| Phase-out threshold | $3,050,000 |
 
 ### 2023 Limits (for reference)
 
@@ -162,7 +169,7 @@ If neither Section 179 nor bonus depreciation is elected, assets are depreciated
 | Year 3 | $11,900 | $11,900 |
 | Year 4+ | $7,160/year | $7,160/year |
 
-**Heavy SUVs (>6,000 lbs GVWR):** Subject to Section 179 limit of $28,900 (2023), but NOT subject to the passenger auto luxury limits — can deduct much more in year 1.
+**Heavy SUVs (>6,000 lbs GVWR):** Subject to Section 179 limit of $31,300 (2025; was $28,900 in 2023), but NOT subject to the passenger auto luxury limits — can deduct much more in year 1.
 
 ---
 

@@ -152,7 +152,7 @@ Available to self-employed individuals with no full-time employees (other than a
 
 | Component | Limit (2024) |
 |---|---|
-| Employee elective deferral | $23,000 ($30,500 if age 50+) |
+| Employee elective deferral | $23,500 ($31,000 if age 50+) — 2025 |
 | Employer profit-sharing | 25% of compensation |
 | Total combined limit | $69,000 ($76,500 if age 50+) |
 
@@ -160,7 +160,7 @@ Available to self-employed individuals with no full-time employees (other than a
 
 **Example:**
 - S-corp W-2 salary: $60,000
-- Solo 401(k) employee deferral: $23,000
+- Solo 401(k) employee deferral: $23,500 (2025)
 - Employer profit-sharing: 25% × $60,000 = $15,000
 - Total contribution: **$38,000** (vs. SEP-IRA max of $15,000 at this salary)
 

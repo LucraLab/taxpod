@@ -38,23 +38,45 @@ const FALLBACK = {
  * Returns first N result snippets, or null on failure.
  */
 function ddgsSearch(query, maxResults = 3) {
+  // Write Python script to a temp file to avoid shell escaping issues
+  const tmpScript = path.join(require('os').tmpdir(), `irs_ddgs_${process.pid}.py`);
+  const tmpInput = path.join(require('os').tmpdir(), `irs_ddgs_${process.pid}_query.json`);
+
   const pythonScript = `
 import sys
 import json
 
 try:
-    from duckduckgo_search import DDGS
+    input_data = json.load(open(sys.argv[1]))
+    query = input_data['query']
+    max_results = input_data['max_results']
+except Exception as e:
+    print(json.dumps({"error": f"input error: {e}"}))
+    sys.exit(0)
+
+try:
+    from ddgs import DDGS
     with DDGS() as ddgs:
-        results = list(ddgs.text("${query.replace(/"/g, '\\"')}", max_results=${maxResults}))
+        results = list(ddgs.text(query, region='us-en', max_results=max_results))
         print(json.dumps([r.get('body', '') for r in results]))
 except ImportError:
-    print(json.dumps({"error": "duckduckgo_search not installed"}))
+    # Try legacy package name
+    try:
+        from duckduckgo_search import DDGS
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=max_results))
+            print(json.dumps([r.get('body', '') for r in results]))
+    except ImportError:
+        print(json.dumps({"error": "ddgs not installed — run: pip install ddgs"}))
 except Exception as e:
     print(json.dumps({"error": str(e)}))
 `;
 
   try {
-    const output = execSync(`python3 -c "${pythonScript.replace(/\n/g, '\\n').replace(/"/g, '\\"')}"`, {
+    require('fs').writeFileSync(tmpScript, pythonScript, 'utf8');
+    require('fs').writeFileSync(tmpInput, JSON.stringify({ query, max_results: maxResults }), 'utf8');
+
+    const output = execSync(`python3 "${tmpScript}" "${tmpInput}"`, {
       timeout: 15000,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -66,6 +88,9 @@ except Exception as e:
     return null;
   } catch (err) {
     return null;
+  } finally {
+    try { require('fs').unlinkSync(tmpScript); } catch (_) {}
+    try { require('fs').unlinkSync(tmpInput); } catch (_) {}
   }
 }
 

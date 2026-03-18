@@ -129,7 +129,7 @@ Available if you use a portion of your home **regularly and exclusively** for bu
 Two methods — choose the one that produces the greater deduction (and stick with it for that vehicle):
 
 **Standard Mileage Rate:**
-- 2024: **$0.67 per mile** for business miles
+- 2025: **$0.70 per mile** for business miles (2024: $0.67)
 - 2025: IRS will announce updated rate (check Rev. Proc. or Notice)
 - Must maintain a mileage log (date, destination, business purpose, miles)
 

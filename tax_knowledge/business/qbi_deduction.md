@@ -47,12 +47,12 @@ The QBI deduction is available to:
 
 ---
 
-## Income Thresholds and Phase-Outs (2023 Tax Year)
+## Income Thresholds and Phase-Outs (2025 Tax Year)
 
 | Filing Status | Phase-Out Begins | Phase-Out Complete |
 |---|---|---|
-| Single | $182,050 | $232,050 |
-| Married Filing Jointly | $364,200 | $464,200 |
+| Single | $197,300 | $247,300 |
+| Married Filing Jointly | $394,600 | $494,600 |
 
 ### Below Threshold (Full Deduction Available)
 
@@ -147,16 +147,17 @@ Aggregation can be beneficial if one business has high W-2 wages and another has
 
 ---
 
-## Key Numbers Summary (2023)
+## Key Numbers Summary (2025)
 
 | Item | Single | MFJ |
 |---|---|---|
-| Full deduction below | $182,050 | $364,200 |
+| Full deduction below | $197,300 | $394,600 |
 | Phase-out complete | $232,050 | $464,200 |
 | Max QBI deduction rate | 20% | 20% |
 | SSTB disallowance above | $232,050 | $464,200 |
 
-> **Note:** These thresholds are indexed for inflation annually. For 2024 and 2025, check the IRS inflation adjustment notices (Rev. Proc. 2023-34 for 2024 numbers).
+> **Note:** Thresholds indexed for inflation annually. Figures above are 2025 (Rev. Proc. 2024-40). For 2026 filings, check the latest IRS inflation adjustment notice.
+> **⚠️ Expiration:** The QBI deduction is scheduled to expire after Dec 31, 2025 (TCJA sunset). As of early 2026 Congressional extension discussions were ongoing — verify current status before advising.
 
 ---
 

@@ -125,12 +125,13 @@ Bonus depreciation allows an **additional first-year deduction** on eligible pro
 
 Section 179 allows **immediate expensing** of qualifying property in the year placed in service.
 
-### 2023/2024 Limits
+### Recent Year Limits
 
 | Year | Deduction Limit | Phase-Out Begins |
 |---|---|---|
 | 2023 | $1,160,000 | $2,890,000 of assets placed in service |
 | 2024 | $1,220,000 | $3,050,000 of assets placed in service |
+| **2025** | **$1,250,000** | **$3,130,000** of assets placed in service |
 
 ### Section 179 for Rental Property
 
