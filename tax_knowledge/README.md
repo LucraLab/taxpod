@@ -43,6 +43,7 @@ tax_knowledge/
 │   ├── depreciation.md               ← 27.5-year depreciation, bonus, Section 179
 │   ├── passive_activity_rules.md     ← PAL rules, $25k exception, real estate pro
 │   ├── 1031_exchange.md              ← Like-kind exchange rules and strategy
+│   ├── cost_segregation.md           ← Cost seg studies, STR PAL exception, bonus dep interaction
 │   └── schedule_e_guide.md          ← How to complete Schedule E
 │
 └── business/                          ← Small Business / LucraLab Rules
@@ -67,7 +68,8 @@ tax_knowledge/
 1. `rental_property_overview.md` — income classification, 14-day rule
 2. `passive_activity_rules.md` — critical for loss deductibility ($25k exception)
 3. `depreciation.md` — biggest deduction, depreciation recapture at sale
-4. `1031_exchange.md` — capital gains deferral strategy
+4. `cost_segregation.md` — accelerate depreciation; STR loophole for non-passive treatment
+5. `1031_exchange.md` — capital gains deferral strategy
 
 ### For LucraLab / Business Tax
 1. `small_business_overview.md` — entity type determines tax treatment
